@@ -2,6 +2,8 @@
 npm-debug.log
 yarn-error.log
 node_modules/
+yarn.lock
+package-lock.json
 
 # Build artifacts and asset stuff
 build/*

@@ -49,10 +49,9 @@ describe('Promise animation', function() {
       // TODO -- make this work (aka the tests keep running until
       // this assertion finishes
       expect(value).toBe(2);
+      animation.play();
+      expect(value).toBe(1);
     });
-
-    animation.play();
-    expect(value).toBe(1);
   });
 
   it('will make one from a normal animation', function() {
@@ -74,9 +73,8 @@ describe('Promise animation', function() {
       } else {
         console.log('another test passed');
       }
+      animPromise.play();
+      expect(value).toBe(1);
     });
-
-    animPromise.play();
-    expect(value).toBe(1);
   });
 });

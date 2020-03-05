@@ -63,7 +63,7 @@ var expectTreeAsync = function(command, expectedJSON, startJSON) {
     headless.gitEngine.loadTreeFromString(startJSON);
   }
 
-  runs(function() {
+  it('Send command', function() {
     headless.sendCommand(command);
   });
   waitsFor(function() {
@@ -131,4 +131,3 @@ module.exports = {
   ONE_COMMIT_TREE: ONE_COMMIT_TREE,
   runCommand: runCommand
 };
-
