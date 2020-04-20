@@ -1,4 +1,5 @@
 var Backbone = require('backbone');
+var jQuery = require('jquery');
 var EventEmitter = require('events').EventEmitter;
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -11,6 +12,13 @@ var LocaleActions = require('../actions/LocaleActions');
 /**
  * Globals
  */
+
+Backbone.$ = jQuery;
+if (util.isBrowser()) {
+  window.jQuery = jQuery;
+  window.$ = jQuery;
+}
+
 var events = Object.assign(
   {},
   EventEmitter.prototype,

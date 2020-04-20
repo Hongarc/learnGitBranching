@@ -490,7 +490,7 @@ GitVisuals.prototype.blendHuesFromBranchStack = function(branchStackArray) {
 
     if (fill.slice(0,3) !== 'hsb') {
       // crap! convert
-      var color = Raphael.color(fill);
+      var color = require('raphael').color(fill);
       fill = 'hsb(' + String(color.h) + ',' + String(color.l);
       fill = fill + ',' + String(color.s) + ')';
     }

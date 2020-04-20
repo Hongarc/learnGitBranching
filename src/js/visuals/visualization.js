@@ -1,4 +1,5 @@
 var Backbone = require('backbone');
+var Raphael = require('raphael');
 
 var Collections = require('../models/collections');
 var CommitCollection = Collections.CommitCollection;
