@@ -311,7 +311,6 @@ if (require('../util').isBrowser()) {
   * and simply pipes commands to the main events system
 **/
 function CommandUI() {
-  Backbone.$ = $; // lol WTF BACKBONE MANAGE YOUR DEPENDENCIES
   var Views = require('../views');
   var Collections = require('../models/collections');
   var CommandViews = require('../views/commandViews');
