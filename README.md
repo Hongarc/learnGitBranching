@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/pcottle/learnGitBranching.svg?branch=master)](https://travis-ci.org/pcottle/learnGitBranching)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?)](https://github.com/pcottle/learnGitBranching/pulls)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fhong4rc%2FlearnGitBranching.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fhong4rc%2FlearnGitBranching?ref=badge_shield)
 
 LearnGitBranching is a git repository visualizer, sandbox, and a series of educational tutorials and challenges. Its primary purpose is to help developers understand git through the power of visualization (something that's absent when working on the command line). This is achieved through a game with different levels to get acquainted with the different git commands.
 
@@ -165,3 +166,7 @@ And the following heroes for assisting in translating:
 Also huge shoutout for everyone who has put up a pull request that was pulled! Check out the 30+ contributors we have in the [Contributors View](https://github.com/pcottle/learnGitBranching/graphs/contributors)
 
 And everyone who has reported an issue that was successfully closed!
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fhong4rc%2FlearnGitBranching.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fhong4rc%2FlearnGitBranching?ref=badge_large)
