@@ -1,24 +1,22 @@
-"use strict";
+const AppConstants = require('../constants/AppConstants');
+const AppDispatcher = require('../dispatcher/AppDispatcher');
 
-var AppConstants = require('../constants/AppConstants');
-var AppDispatcher = require('../dispatcher/AppDispatcher');
+const { ActionTypes } = AppConstants;
 
-var ActionTypes = AppConstants.ActionTypes;
+const LevelActions = {
 
-var LevelActions = {
-
-  setLevelSolved: function(levelID) {
+  setLevelSolved(levelID) {
     AppDispatcher.handleViewAction({
       type: ActionTypes.SET_LEVEL_SOLVED,
-      levelID: levelID
+      levelID,
     });
   },
 
-  resetLevelsSolved: function() {
+  resetLevelsSolved() {
     AppDispatcher.handleViewAction({
-      type: ActionTypes.RESET_LEVELS_SOLVED
+      type: ActionTypes.RESET_LEVELS_SOLVED,
     });
-  }
+  },
 
 };
 

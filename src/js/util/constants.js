@@ -1,18 +1,18 @@
 /**
  * Constants....!!!
  */
-var TIME = {
-  betweenCommandsDelay: 400
+const TIME = {
+  betweenCommandsDelay: 400,
 };
 
-var VIEWPORT = {
+const VIEWPORT = {
   minZoom: 0.55,
   maxZoom: 1.25,
   minWidth: 600,
-  minHeight: 600
+  minHeight: 600,
 };
 
-var GRAPHICS = {
+const GRAPHICS = {
   arrowHeadSize: 8,
 
   nodeRadius: 17,
@@ -45,10 +45,9 @@ var GRAPHICS = {
   tagStroke: '#FFF',
   tagStrokeWidth: '2',
 
-  orphanNodeFill: 'hsb(0.5,0.8,0.7)'
+  orphanNodeFill: 'hsb(0.5,0.8,0.7)',
 };
 
 exports.TIME = TIME;
 exports.GRAPHICS = GRAPHICS;
 exports.VIEWPORT = VIEWPORT;
-

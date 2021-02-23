@@ -1,13 +1,13 @@
-var GitError = require('../util/errors').GitError;
-var _ = require('underscore');
-var Q = require('q');
-var Backbone = require('backbone');
+const _ = require('underscore');
+const Q = require('q');
+const Backbone = require('backbone');
+const { GitError } = require('../util/errors');
 
-var ModalTerminal = require('../views').ModalTerminal;
-var ContainedBase = require('../views').ContainedBase;
-var ConfirmCancelView = require('../views').ConfirmCancelView;
+const { ModalTerminal } = require('.');
+const { ContainedBase } = require('.');
+const { ConfirmCancelView } = require('.');
 
-var intl = require('../intl');
+const intl = require('../intl');
 
 require('jquery-ui/ui/widget');
 require('jquery-ui/ui/scroll-parent');
@@ -20,11 +20,11 @@ require('jquery-ui/ui/safe-active-element');
 require('jquery-ui/ui/safe-blur');
 require('jquery-ui/ui/widgets/draggable');
 
-var InteractiveRebaseView = ContainedBase.extend({
+const InteractiveRebaseView = ContainedBase.extend({
   tagName: 'div',
   template: _.template($('#interactive-rebase-template').html()),
 
-  initialize: function(options) {
+  initialize(options) {
     this.deferred = options.deferred;
     this.rebaseMap = {};
     this.entryObjMap = {};
@@ -32,19 +32,19 @@ var InteractiveRebaseView = ContainedBase.extend({
 
     this.rebaseEntries = new RebaseEntryCollection();
     options.toRebase.reverse();
-    options.toRebase.forEach(function(commit) {
-      var id = commit.get('id');
+    options.toRebase.forEach(function (commit) {
+      const id = commit.get('id');
       this.rebaseMap[id] = commit;
 
       // make basic models for each commit
       this.entryObjMap[id] = new RebaseEntry({
-        id: id
+        id,
       });
       this.rebaseEntries.add(this.entryObjMap[id]);
     }, this);
 
     this.container = new ModalTerminal({
-      title: intl.str('interactive-rebase-title')
+      title: intl.str('interactive-rebase-title'),
     });
     this.render();
 
@@ -57,26 +57,26 @@ var InteractiveRebaseView = ContainedBase.extend({
     }
   },
 
-  restoreVis: function() {
+  restoreVis() {
     // restore the absolute position canvases
     $('#canvasHolder').css('display', 'inherit');
   },
 
-  confirm: function() {
+  confirm() {
     this.die();
     if (this.options.aboveAll) {
       this.restoreVis();
     }
 
     // get our ordering
-    var uiOrder = [];
-    this.$('ul.rebaseEntries li').each(function(i, obj) {
-      uiOrder.push(obj.id);
+    const uiOrder = [];
+    this.$('ul.rebaseEntries li').each((index, object) => {
+      uiOrder.push(object.id);
     });
 
     // now get the real array
-    var toRebase = [];
-    uiOrder.forEach(function(id) {
+    const toRebase = [];
+    uiOrder.forEach(function (id) {
       // the model pick check
       if (this.entryObjMap[id].get('pick')) {
         toRebase.unshift(this.rebaseMap[id]);
@@ -89,22 +89,22 @@ var InteractiveRebaseView = ContainedBase.extend({
     this.$el.html('');
   },
 
-  render: function() {
-    var json = {
+  render() {
+    const json = {
       num: Object.keys(this.rebaseMap).length,
-      solutionOrder: this.options.initialCommitOrdering
+      solutionOrder: this.options.initialCommitOrdering,
     };
 
-    var destination = this.container.getInsideElement();
+    const destination = this.container.getInsideElement();
     this.$el.html(this.template(json));
     $(destination).append(this.el);
 
     // also render each entry
-    var listHolder = this.$('ul.rebaseEntries');
-    this.rebaseEntries.each(function(entry) {
+    const listHolder = this.$('ul.rebaseEntries');
+    this.rebaseEntries.each((entry) => {
       new RebaseEntryView({
         el: listHolder,
-        model: entry
+        model: entry,
       });
     }, this);
 
@@ -112,13 +112,13 @@ var InteractiveRebaseView = ContainedBase.extend({
     listHolder.sortable({
       axis: 'y',
       placeholder: 'rebaseEntry transitionOpacity ui-state-highlight',
-      appendTo: 'parent'
+      appendTo: 'parent',
     });
 
     this.makeButtons();
   },
 
-  cancel: function() {
+  cancel() {
     // empty array does nothing, just like in git
     this.hide();
     if (this.options.aboveAll) {
@@ -127,65 +127,65 @@ var InteractiveRebaseView = ContainedBase.extend({
     this.deferred.resolve([]);
   },
 
-  makeButtons: function() {
+  makeButtons() {
     // control for button
-    var deferred = Q.defer();
+    const deferred = Q.defer();
     deferred.promise
-    .then(function() {
-      this.confirm();
-    }.bind(this))
-    .fail(function() {
-      this.cancel();
-    }.bind(this))
-    .done();
+      .then(() => {
+        this.confirm();
+      })
+      .fail(() => {
+        this.cancel();
+      })
+      .done();
 
     // finally get our buttons
     new ConfirmCancelView({
       destination: this.$('.confirmCancel'),
-      deferred: deferred
+      deferred,
     });
-  }
+  },
 });
 
 var RebaseEntry = Backbone.Model.extend({
   defaults: {
-    pick: true
+    pick: true,
   },
 
-  toggle: function() {
+  toggle() {
     this.set('pick', !this.get('pick'));
-  }
+  },
 });
 
 var RebaseEntryCollection = Backbone.Collection.extend({
-  model: RebaseEntry
+  model: RebaseEntry,
 });
 
 var RebaseEntryView = Backbone.View.extend({
   tagName: 'li',
   template: _.template($('#interactive-rebase-entry-template').html()),
 
-  toggle: function() {
+  toggle() {
     this.model.toggle();
 
     // toggle a class also
     this.listEntry.toggleClass('notPicked', !this.model.get('pick'));
   },
 
-  initialize: function(options) {
+  initialize(options) {
     this.render();
   },
 
-  render: function() {
+  render() {
     this.$el.append(this.template(this.model.toJSON()));
 
     // hacky :( who would have known jquery barfs on ids with %'s and quotes
     this.listEntry = this.$el.children(':last');
 
-    this.listEntry.delegate('#toggleButton', 'click', function() {
+    this.listEntry.delegate('#toggleButton', 'click', () => {
       this.toggle();
-    }.bind(this));
-  }
+    });
+  },
 });
 
 exports.InteractiveRebaseView = InteractiveRebaseView;

@@ -1,21 +1,19 @@
-"use strict";
+const keyMirror = require('../util/keyMirror');
 
-var keyMirror = require('../util/keyMirror');
-
-var CHANGE_EVENT = 'change';
+const CHANGE_EVENT = 'change';
 
 module.exports = {
 
-  CHANGE_EVENT: CHANGE_EVENT,
+  CHANGE_EVENT,
 
   StoreSubscribePrototype: {
-    subscribe: function(cb) {
-      this.on(CHANGE_EVENT, cb);
+    subscribe(callback) {
+      this.on(CHANGE_EVENT, callback);
     },
 
-    unsubscribe: function(cb) {
-      this.removeListener(CHANGE_EVENT, cb);
-    }
+    unsubscribe(callback) {
+      this.removeListener(CHANGE_EVENT, callback);
+    },
   },
 
   ActionTypes: keyMirror({
@@ -32,11 +30,11 @@ module.exports = {
      * solve the level, not ask for solution
      * or solve it again.
      */
-    SOLVE_LEVEL: null
+    SOLVE_LEVEL: null,
   }),
 
   PayloadSources: keyMirror({
     VIEW_ACTION: null,
-    URI_ACTION: null
-  })
+    URI_ACTION: null,
+  }),
 };

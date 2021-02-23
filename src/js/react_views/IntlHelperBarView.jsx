@@ -1,13 +1,12 @@
-var PropTypes = require('prop-types');
+const PropTypes = require('prop-types');
 
-var HelperBarView = require('../react_views/HelperBarView.jsx');
-var Main = require('../app');
-var React = require('react');
+const React = require('react');
+const HelperBarView = require('./HelperBarView.jsx');
+const Main = require('../app');
 
-var log = require('../log');
+const log = require('../log');
 
-class IntlHelperBarView extends React.Component{
-
+class IntlHelperBarView extends React.Component {
   render() {
     return (
       <HelperBarView
@@ -27,125 +26,124 @@ class IntlHelperBarView extends React.Component{
     return [{
       text: 'Git Branching',
       testID: 'english',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale en_US; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: '日本語版リポジトリ',
       testID: 'japanese',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale ja; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'Git 브랜치 배우기',
       testID: 'korean',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale ko; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: '学习 Git 分支',
       testID: 'simplifiedChinese',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale zh_CN; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: '學習 Git 分支',
       testID: 'traditionalChinese',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale zh_TW; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'español',
       testID: 'spanish',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale es_ES; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'argentino',
       testID: 'argentinian',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale es_AR; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'mexicano',
       testID: 'mexican',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale es_MX; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'português',
       testID: 'portuguese',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale pt_BR; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'français',
       testID: 'french',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale fr_FR; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'Deutsch',
       testID: 'german',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale de_DE; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'Русский',
       testID: 'russian',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale ru_RU; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'Українська',
       testID: 'ukrainian',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale uk; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'Tiếng Việt',
       testID: 'vietnamese',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale vi; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'Galego',
       testID: 'galician',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale gl; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'Slovensko',
       testID: 'slovenian',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale sl_SI; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'Polski',
       testID: 'polish',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale pl; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       text: 'தமிழ்',
       testID: 'tamil',
-      onClick: function() {
+      onClick: function () {
         this.fireCommand('locale ta_IN; levels');
-      }.bind(this)
+      }.bind(this),
     }, {
       icon: 'signout',
-      onClick: function() {
+      onClick: function () {
         this.props.onExit();
-      }.bind(this)
-    }
+      }.bind(this),
+    },
     ];
   }
-
-};
+}
 
 IntlHelperBarView.propTypes = {
   shown: PropTypes.bool.isRequired,
-  onExit: PropTypes.func.isRequired
-}
+  onExit: PropTypes.func.isRequired,
+};
 
 module.exports = IntlHelperBarView;

@@ -1,37 +1,35 @@
-"use strict";
+const AppConstants = require('../constants/AppConstants');
+const AppDispatcher = require('../dispatcher/AppDispatcher');
 
-var AppConstants = require('../constants/AppConstants');
-var AppDispatcher = require('../dispatcher/AppDispatcher');
+const { ActionTypes } = AppConstants;
 
-var ActionTypes = AppConstants.ActionTypes;
+const GlobalStateActions = {
 
-var GlobalStateActions = {
-
-  changeIsAnimating: function(isAnimating) {
+  changeIsAnimating(isAnimating) {
     AppDispatcher.handleViewAction({
       type: ActionTypes.CHANGE_IS_ANIMATING,
-      isAnimating: isAnimating
+      isAnimating,
     });
   },
 
-  levelSolved: function() {
+  levelSolved() {
     AppDispatcher.handleViewAction({
       type: ActionTypes.LEVEL_SOLVED,
     });
   },
 
-  disableLevelInstructions: function() {
+  disableLevelInstructions() {
     AppDispatcher.handleViewAction({
       type: ActionTypes.DISABLE_LEVEL_INSTRUCTIONS,
     });
   },
 
-  changeFlipTreeY: function(flipTreeY) {
+  changeFlipTreeY(flipTreeY) {
     AppDispatcher.handleViewAction({
       type: ActionTypes.CHANGE_FLIP_TREE_Y,
-      flipTreeY: flipTreeY
+      flipTreeY,
     });
-  }
+  },
 
 };
 

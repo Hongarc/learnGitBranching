@@ -1,13 +1,13 @@
-module.exports = function(func, time) {
-    var wait = false;
-    return function() {
-      if (!wait) {
-        func.apply(this, arguments);
-        wait = true;
+module.exports = function (function_, time) {
+  let wait = false;
+  return function () {
+    if (!wait) {
+      Reflect.apply(function_, this, arguments);
+      wait = true;
 
-        setTimeout(function() {
-          wait = false;
-        }, time);
-      }
-    };
+      setTimeout(() => {
+        wait = false;
+      }, time);
+    }
   };
+};

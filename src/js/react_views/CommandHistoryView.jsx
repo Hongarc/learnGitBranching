@@ -1,24 +1,23 @@
-var React = require('react');
-var PropTypes = require('prop-types');
+const React = require('react');
+const PropTypes = require('prop-types');
 
-var CommandView = require('../react_views/CommandView.jsx');
-var Main = require('../app');
+const CommandView = require('./CommandView.jsx');
+const Main = require('../app');
 
-var _subscribeEvents = [
+const _subscribeEvents = [
   'add',
   'reset',
   'change',
-  'all'
+  'all',
 ];
 
 class CommandHistoryView extends React.Component {
-
   componentDidMount() {
-    for (var i = 0; i < _subscribeEvents.length; i++) {
+    for (const _subscribeEvent of _subscribeEvents) {
       this.props.commandCollection.on(
-        _subscribeEvents[i],
+        _subscribeEvent,
         this.updateFromCollection,
-        this
+        this,
       );
     }
 
@@ -28,11 +27,11 @@ class CommandHistoryView extends React.Component {
   }
 
   componentWillUnmount() {
-    for (var i = 0; i < _subscribeEvents.length; i++) {
+    for (const _subscribeEvent of _subscribeEvents) {
       this.props.commandCollection.off(
-        _subscribeEvents[i],
+        _subscribeEvent,
         this.updateFromCollection,
-        this
+        this,
       );
     }
   }
@@ -41,34 +40,35 @@ class CommandHistoryView extends React.Component {
     this.forceUpdate();
   }
 
-  render() {
-    var allCommands = [];
-    this.props.commandCollection.each(function(command, index) {
-      allCommands.push(
-        <CommandView
-          id={'command_' + index}
-          command={command}
-          key={command.cid}
-        />
-      );
+  clearOldCommands() {
+    // go through and get rid of every command that is "processed" or done
+    const toDestroy = [];
+
+    this.props.commandCollection.each((command) => {
+      if (command.get('status') !== 'inqueue'
+          && command.get('status') !== 'processing') {
+        toDestroy.push(command);
+      }
     }, this);
-    return (
-      <div>
-        {allCommands}
-      </div>
-    );
+    toDestroy.forEach((element) => {
+      element.destroy();
+    });
+
+    this.updateFromCollection();
+    this.scrollDown();
   }
 
+  // eslint-disable-next-line class-methods-use-this
   scrollDown() {
-    var cD = document.getElementById('commandDisplay');
-    var t = document.getElementById('terminal');
+    const cD = document.querySelector('#commandDisplay');
+    const t = document.querySelector('#terminal');
 
     // firefox hack
-    var shouldScroll = (cD.clientHeight > t.clientHeight) ||
-      (window.innerHeight < cD.clientHeight);
+    const shouldScroll = (cD.clientHeight > t.clientHeight)
+      || (window.innerHeight < cD.clientHeight);
 
     // ugh sometimes i wish i had toggle class
-    var hasScroll = t.className.match(/scrolling/g);
+    const hasScroll = t.className.match(/scrolling/g);
     if (shouldScroll && !hasScroll) {
       t.className += ' scrolling';
     } else if (!shouldScroll && hasScroll) {
@@ -80,28 +80,28 @@ class CommandHistoryView extends React.Component {
     }
   }
 
-  clearOldCommands() {
-    // go through and get rid of every command that is "processed" or done
-    var toDestroy = [];
-
-    this.props.commandCollection.each(function(command) {
-      if (command.get('status') !== 'inqueue' &&
-          command.get('status') !== 'processing') {
-        toDestroy.push(command);
-      }
+  render() {
+    const allCommands = [];
+    this.props.commandCollection.each((command, index) => {
+      allCommands.push(
+        <CommandView
+          id={`command_${index}`}
+          command={command}
+          key={command.cid}
+        />,
+      );
     }, this);
-    for (var i = 0; i < toDestroy.length; i++) {
-      toDestroy[i].destroy();
-    }
-    this.updateFromCollection();
-    this.scrollDown();
+    return (
+      <div>
+        {allCommands}
+      </div>
+    );
   }
-
 }
 
 CommandHistoryView.propTypes = {
   // the backbone command model collection
-  commandCollection: PropTypes.object.isRequired
+  commandCollection: PropTypes.object.isRequired,
 };
 
 module.exports = CommandHistoryView;

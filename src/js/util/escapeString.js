@@ -1,14 +1,12 @@
-var mapping = {
+const mapping = {
   '&': '&amp;',
   '<': '&lt;',
   '>': '&gt;',
   '"': '&quot;',
   "'": '&#x27;',
-  '/': '&#x2F;'
+  '/': '&#x2F;',
 };
 
-module.exports = function(string) {
-  return ('' + string).replace(/[&<>"'\/]/g, function(match) {
-    return mapping[match];
-  });
+module.exports = function (string) {
+  return (`${string}`).replace(/["&'/<>]/g, (match) => mapping[match]);
 };

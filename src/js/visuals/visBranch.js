@@ -1,16 +1,16 @@
-var Backbone = require('backbone');
-var GRAPHICS = require('../util/constants').GRAPHICS;
+const Backbone = require('backbone');
+const { GRAPHICS } = require('../util/constants');
 
-var VisBase = require('../visuals/visBase').VisBase;
-var TreeCompare = require('../graph/treeCompare');
+const { VisBase } = require('./visBase');
+const TreeCompare = require('../graph/treeCompare');
 
-var randomHueString = function() {
-  var hue = Math.random();
-  var str = 'hsb(' + String(hue) + ',0.6,1)';
-  return str;
+const randomHueString = function () {
+  const hue = Math.random();
+  const string = `hsb(${String(hue)},0.6,1)`;
+  return string;
 };
 
-var VisBranch = VisBase.extend({
+const VisBranch = VisBase.extend({
   defaults: {
     pos: null,
     text: null,
@@ -35,20 +35,20 @@ var VisBranch = VisBase.extend({
     hPad: 5,
 
     animationSpeed: GRAPHICS.defaultAnimationTime,
-    animationEasing: GRAPHICS.defaultEasing
+    animationEasing: GRAPHICS.defaultEasing,
   },
 
-  validateAtInit: function() {
+  validateAtInit() {
     if (!this.get('branch')) {
       throw new Error('need a branch!');
     }
   },
 
-  getID: function() {
+  getID() {
     return this.get('branch').get('id');
   },
 
-  initialize: function() {
+  initialize() {
     this.validateAtInit();
 
     // shorthand notation for the main objects
@@ -59,7 +59,7 @@ var VisBranch = VisBase.extend({
     }
 
     this.get('branch').set('visBranch', this);
-    var id = this.get('branch').get('id');
+    const id = this.get('branch').get('id');
 
     if (id == 'HEAD') {
       // switch to a head ref
@@ -74,23 +74,23 @@ var VisBranch = VisBase.extend({
     }
   },
 
-  getCommitPosition: function() {
-    var commit = this.gitEngine.getCommitFromRef(this.get('branch'));
-    var visNode = commit.get('visNode');
+  getCommitPosition() {
+    const commit = this.gitEngine.getCommitFromRef(this.get('branch'));
+    const visNode = commit.get('visNode');
 
     this.set('flip', this.getFlipValue(commit, visNode));
     this.refreshOffset();
     return visNode.getScreenCoords();
   },
 
-  getDashArray: function() {
+  getDashArray() {
     if (!this.get('gitVisuals').getIsGoalVis()) {
       return '';
     }
     return (this.getIsLevelBranchCompared()) ? '' : '--';
   },
 
-  getIsGoalAndNotCompared: function() {
+  getIsGoalAndNotCompared() {
     if (!this.get('gitVisuals').getIsGoalVis()) {
       return false;
     }
@@ -102,22 +102,22 @@ var VisBranch = VisBase.extend({
    * returns true if we are a branch that is not being
    * compared in the goal (used in a goal visualization context
    */
-  getIsLevelBranchCompared: function() {
+  getIsLevelBranchCompared() {
     if (this.getIsMaster()) {
       return true; // master always compared
     }
     // we are not master, so return true if its not just master being compared
-    var levelBlob = this.get('gitVisuals').getLevelBlob();
+    const levelBlob = this.get('gitVisuals').getLevelBlob();
     return !TreeCompare.onlyMasterCompared(levelBlob);
   },
 
-  getIsMaster: function() {
+  getIsMaster() {
     return this.get('branch').get('id') == 'master';
   },
 
-  getFlipValue: function(commit, visNode) {
-    var threshold = this.get('gitVisuals').getFlipPos();
-    var overThreshold = (visNode.get('pos').x > threshold);
+  getFlipValue(commit, visNode) {
+    const threshold = this.get('gitVisuals').getFlipPos();
+    const overThreshold = (visNode.get('pos').x > threshold);
 
     // easy logic first
     if (commit.get('id') === 'C0') {
@@ -132,15 +132,14 @@ var VisBranch = VisBase.extend({
       // if by ourselves, then feel free to squeeze in. but
       // if other branches are here, then we need to show separate
       return (this.isBranchStackEmpty()) ? -1 : 1;
-    } else {
-      return (this.isBranchStackEmpty()) ? 1 : -1;
     }
+    return (this.isBranchStackEmpty()) ? 1 : -1;
   },
 
-  refreshOffset: function() {
-    var baseOffsetX = GRAPHICS.nodeRadius * 4.75;
-    var offsetY = 33;
-    var deltaX = 10;
+  refreshOffset() {
+    const baseOffsetX = GRAPHICS.nodeRadius * 4.75;
+    const offsetY = 33;
+    const deltaX = 10;
     if (this.get('flip') === 1) {
       this.set('offsetY', -offsetY);
       this.set('offsetX', baseOffsetX - deltaX);
@@ -150,31 +149,30 @@ var VisBranch = VisBase.extend({
     }
   },
 
-  getArrowTransform: function() {
+  getArrowTransform() {
     if (this.get('flip') === 1) {
       return 't-2,-20R-35';
-    } else {
-      return 't2,20R-35';
     }
+    return 't2,20R-35';
   },
 
-  getBranchStackIndex: function() {
+  getBranchStackIndex() {
     if (this.get('isHead')) {
       // head is never stacked with other branches
       return 0;
     }
 
-    var myArray = this.getBranchStackArray();
-    var index = -1;
-    myArray.forEach(function(branch, i) {
+    const myArray = this.getBranchStackArray();
+    let index = -1;
+    myArray.forEach(function (branch, index_) {
       if (branch.obj == this.get('branch')) {
-        index = i;
+        index = index_;
       }
     }, this);
     return index;
   },
 
-  getBranchStackLength: function() {
+  getBranchStackLength() {
     if (this.get('isHead')) {
       // head is always by itself
       return 1;
@@ -183,16 +181,16 @@ var VisBranch = VisBase.extend({
     return this.getBranchStackArray().length;
   },
 
-  isBranchStackEmpty: function() {
+  isBranchStackEmpty() {
     // useful function for head when computing flip logic
-    var arr = this.gitVisuals.branchStackMap[this.getCommitID()];
-    return (arr) ?
-      arr.length === 0 :
-      true;
+    const array = this.gitVisuals.branchStackMap[this.getCommitID()];
+    return (array)
+      ? array.length === 0
+      : true;
   },
 
-  getCommitID: function() {
-    var target = this.get('branch').get('target');
+  getCommitID() {
+    let target = this.get('branch').get('target');
     if (target.get('type') === 'branch') {
       // for HEAD
       target = target.get('target');
@@ -200,194 +198,191 @@ var VisBranch = VisBase.extend({
     return target.get('id');
   },
 
-  getBranchStackArray: function() {
-    var arr = this.gitVisuals.branchStackMap[this.getCommitID()];
-    if (arr === undefined) {
+  getBranchStackArray() {
+    const array = this.gitVisuals.branchStackMap[this.getCommitID()];
+    if (array === undefined) {
       // this only occurs when we are generating graphics inside of
       // a new Branch instantiation, so we need to force the update
       this.gitVisuals.calcBranchStacks();
       return this.getBranchStackArray();
     }
-    return arr;
+    return array;
   },
 
-  getTextPosition: function() {
-    var pos = this.getCommitPosition();
+  getTextPosition() {
+    const pos = this.getCommitPosition();
 
     // then order yourself accordingly. we use alphabetical sorting
     // so everything is independent
-    var myPos = this.getBranchStackIndex();
+    const myPos = this.getBranchStackIndex();
     return {
       x: pos.x + this.get('flip') * this.get('offsetX'),
-      y: pos.y + myPos * GRAPHICS.multiBranchY + this.get('offsetY')
+      y: pos.y + myPos * GRAPHICS.multiBranchY + this.get('offsetY'),
     };
   },
 
-  getRectPosition: function() {
-    var pos = this.getTextPosition();
-    var f = this.get('flip');
+  getRectPosition() {
+    const pos = this.getTextPosition();
+    const f = this.get('flip');
 
     // first get text width and height
-    var textSize = this.getTextSize();
+    const textSize = this.getTextSize();
     return {
       x: pos.x - 0.5 * textSize.w - this.get('hPad'),
-      y: pos.y - 0.5 * textSize.h - this.get('vPad')
+      y: pos.y - 0.5 * textSize.h - this.get('vPad'),
     };
   },
 
-  getArrowPath: function() {
+  getArrowPath() {
     // should make these util functions...
-    var offset2d = function(pos, x, y) {
+    const offset2d = function (pos, x, y) {
       return {
         x: pos.x + x,
-        y: pos.y + y
+        y: pos.y + y,
       };
     };
-    var toStringCoords = function(pos) {
-      return String(Math.round(pos.x)) + ',' + String(Math.round(pos.y));
+    const toStringCoords = function (pos) {
+      return `${String(Math.round(pos.x))},${String(Math.round(pos.y))}`;
     };
-    var f = this.get('flip');
+    const f = this.get('flip');
 
-    var arrowTip = offset2d(this.getCommitPosition(),
+    const arrowTip = offset2d(this.getCommitPosition(),
       f * this.get('arrowOffsetFromCircleX'),
-      0
-    );
-    var arrowEdgeUp = offset2d(arrowTip, f * this.get('arrowLength'), -this.get('arrowHeight'));
-    var arrowEdgeLow = offset2d(arrowTip, f * this.get('arrowLength'), this.get('arrowHeight'));
+      0);
+    const arrowEdgeUp = offset2d(arrowTip, f * this.get('arrowLength'), -this.get('arrowHeight'));
+    const arrowEdgeLow = offset2d(arrowTip, f * this.get('arrowLength'), this.get('arrowHeight'));
 
-    var arrowInnerUp = offset2d(arrowEdgeUp,
+    const arrowInnerUp = offset2d(arrowEdgeUp,
       f * this.get('arrowInnerSkew'),
-      this.get('arrowEdgeHeight')
-    );
-    var arrowInnerLow = offset2d(arrowEdgeLow,
+      this.get('arrowEdgeHeight'));
+    const arrowInnerLow = offset2d(arrowEdgeLow,
       f * this.get('arrowInnerSkew'),
-      -this.get('arrowEdgeHeight')
-    );
+      -this.get('arrowEdgeHeight'));
 
-    var tailLength = 49;
-    var arrowStartUp = offset2d(arrowInnerUp, f * tailLength, 0);
-    var arrowStartLow = offset2d(arrowInnerLow, f * tailLength, 0);
+    const tailLength = 49;
+    const arrowStartUp = offset2d(arrowInnerUp, f * tailLength, 0);
+    const arrowStartLow = offset2d(arrowInnerLow, f * tailLength, 0);
 
-    var pathStr = '';
-    pathStr += 'M' + toStringCoords(arrowStartUp) + ' ';
-    var coords = [
+    let pathString = '';
+    pathString += `M${toStringCoords(arrowStartUp)} `;
+    const coords = [
       arrowInnerUp,
       arrowEdgeUp,
       arrowTip,
       arrowEdgeLow,
       arrowInnerLow,
-      arrowStartLow
+      arrowStartLow,
     ];
-    coords.forEach(function(pos) {
-      pathStr += 'L' + toStringCoords(pos) + ' ';
+    coords.forEach((pos) => {
+      pathString += `L${toStringCoords(pos)} `;
     }, this);
-    pathStr += 'z';
-    return pathStr;
+    pathString += 'z';
+    return pathString;
   },
 
-  getTextSize: function() {
-    var getTextWidth = function(visBranch) {
-      var textNode = (visBranch.get('text')) ? visBranch.get('text').node : null;
+  getTextSize() {
+    const getTextWidth = function (visBranch) {
+      const textNode = (visBranch.get('text')) ? visBranch.get('text').node : null;
       return (textNode === null) ? 0 : textNode.getBoundingClientRect().width;
     };
 
-    var firefoxFix = function(obj) {
-      if (!obj.w) { obj.w = 75; }
-      if (!obj.h) { obj.h = 20; }
-      return obj;
+    const firefoxFix = function (object) {
+      if (!object.w) { object.w = 75; }
+      if (!object.h) { object.h = 20; }
+      return object;
     };
 
-    var textNode = this.get('text').node;
+    const textNode = this.get('text').node;
     if (this.get('isHead')) {
       // HEAD is a special case
-      var size = textNode.getBoundingClientRect();
+      const size = textNode.getBoundingClientRect();
       return firefoxFix({
         w: size.width,
-        h: size.height
+        h: size.height,
       });
     }
 
-    var maxWidth = 0;
-    this.getBranchStackArray().forEach(function(branch) {
+    let maxWidth = 0;
+    for (const branch of this.getBranchStackArray()) {
       maxWidth = Math.max(maxWidth, getTextWidth(
-        branch.obj.get('visBranch')
+        branch.obj.get('visBranch'),
       ));
-    });
+    }
 
     return firefoxFix({
       w: maxWidth,
-      h: textNode.clientHeight
+      h: textNode.clientHeight,
     });
   },
 
-  getSingleRectSize: function() {
-    var textSize = this.getTextSize();
-    var vPad = this.get('vPad');
-    var hPad = this.get('hPad');
+  getSingleRectSize() {
+    const textSize = this.getTextSize();
+    const vPad = this.get('vPad');
+    const hPad = this.get('hPad');
     return {
       w: textSize.w + vPad * 2,
-      h: textSize.h + hPad * 2
+      h: textSize.h + hPad * 2,
     };
   },
 
-  getRectSize: function() {
-    var textSize = this.getTextSize();
+  getRectSize() {
+    const textSize = this.getTextSize();
     // enforce padding
-    var vPad = this.get('vPad');
-    var hPad = this.get('hPad');
+    const vPad = this.get('vPad');
+    const hPad = this.get('hPad');
 
     // number of other branch names we are housing
-    var totalNum = this.getBranchStackLength();
+    const totalNumber = this.getBranchStackLength();
     return {
       w: textSize.w + vPad * 2,
-      h: textSize.h * totalNum * 1.1 + hPad * 2
+      h: textSize.h * totalNumber * 1.1 + hPad * 2,
     };
   },
 
-  getIsRemote: function() {
+  getIsRemote() {
     return this.get('branch').getIsRemote();
   },
 
-  getName: function() {
-    var name = this.get('branch').getName();
-    var selected = this.get('branch') === this.gitEngine.HEAD.get('target');
-    var isRemote = this.getIsRemote();
-    var isHg = this.gitEngine.getIsHg();
+  getName() {
+    let name = this.get('branch').getName();
+    const selected = this.get('branch') === this.gitEngine.HEAD.get('target');
+    const isRemote = this.getIsRemote();
+    const isHg = this.gitEngine.getIsHg();
 
     if (name === 'HEAD' && isHg) {
       name = '.';
     }
-    if (name.match(/\bmaster\b/)) {
+    if (/\bmaster\b/.test(name)) {
       name = name.replace(/\bmaster\b/, 'main');
     }
 
-    var after = (selected && !this.getIsInOrigin() && !isRemote) ? '*' : '';
+    const after = (selected && !this.getIsInOrigin() && !isRemote) ? '*' : '';
     return name + after;
   },
 
-  nonTextToFront: function() {
+  nonTextToFront() {
     this.get('arrow').toFront();
     this.get('rect').toFront();
   },
 
-  textToFront: function() {
+  textToFront() {
     this.get('text').toFront();
   },
 
-  textToFrontIfInStack: function() {
+  textToFrontIfInStack() {
     if (this.getBranchStackIndex() !== 0) {
       this.get('text').toFront();
     }
   },
 
-  getFill: function() {
+  getFill() {
     // in the easy case, just return your own fill if you are:
     // - the HEAD ref
     // - by yourself (length of 1)
     // - part of a multi branch, but your thing is hidden
-    if (this.get('isHead') ||
-        this.getBranchStackLength() == 1 ||
-        this.getBranchStackIndex() !== 0) {
+    if (this.get('isHead')
+        || this.getBranchStackLength() == 1
+        || this.getBranchStackIndex() !== 0) {
       return this.get('fill');
     }
 
@@ -395,47 +390,45 @@ var VisBranch = VisBase.extend({
     return this.gitVisuals.blendHuesFromBranchStack(this.getBranchStackArray());
   },
 
-  remove: function() {
+  remove() {
     this.removeKeys(['text', 'arrow', 'rect']);
     // also need to remove from this.gitVisuals
     this.gitVisuals.removeVisBranch(this);
   },
 
-  handleModeChange: function() {
+  handleModeChange() {},
 
-  },
-
-  genGraphics: function(paper) {
-    var textPos = this.getTextPosition();
-    var name = this.getName();
+  genGraphics(paper) {
+    const textPos = this.getTextPosition();
+    const name = this.getName();
 
     // when from a reload, we don't need to generate the text
-    var text = paper.text(textPos.x, textPos.y, String(name));
+    const text = paper.text(textPos.x, textPos.y, String(name));
     text.attr({
       'font-size': 14,
-      'font-family': 'Menlo, Monaco, Consolas, \'Droid Sans Mono\', monospace',
-      opacity: this.getTextOpacity()
+      'font-family': "Menlo, Monaco, Consolas, 'Droid Sans Mono', monospace",
+      opacity: this.getTextOpacity(),
     });
     this.set('text', text);
-    var attr = this.getAttributes();
+    const attribute = this.getAttributes();
 
-    var rectPos = this.getRectPosition();
-    var sizeOfRect = this.getRectSize();
-    var rect = paper
+    const rectPos = this.getRectPosition();
+    const sizeOfRect = this.getRectSize();
+    const rect = paper
       .rect(rectPos.x, rectPos.y, sizeOfRect.w, sizeOfRect.h, 8)
-      .attr(attr.rect);
+      .attr(attribute.rect);
     this.set('rect', rect);
 
-    var arrowPath = this.getArrowPath();
-    var arrow = paper
+    const arrowPath = this.getArrowPath();
+    const arrow = paper
       .path(arrowPath)
-      .attr(attr.arrow);
+      .attr(attribute.arrow);
     this.set('arrow', arrow);
 
     // set CSS
-    var keys = ['text', 'rect', 'arrow'];
-    keys.forEach(function(key) {
-      $(this.get(key).node).css(attr.css);
+    const keys = ['text', 'rect', 'arrow'];
+    keys.forEach(function (key) {
+      $(this.get(key).node).css(attribute.css);
     }, this);
 
     this.attachClickHandlers();
@@ -443,53 +436,53 @@ var VisBranch = VisBase.extend({
     text.toFront();
   },
 
-  attachClickHandlers: function() {
+  attachClickHandlers() {
     if (this.get('gitVisuals').options.noClick) {
       return;
     }
-    var objs = [
+    const objs = [
       this.get('rect'),
       this.get('text'),
-      this.get('arrow')
+      this.get('arrow'),
     ];
 
-    objs.forEach(function(rObj) {
-      rObj.click(this.onClick.bind(this));
+    objs.forEach(function (rObject) {
+      rObject.click(this.onClick.bind(this));
     }, this);
   },
 
-  shouldDisableClick: function() {
+  shouldDisableClick() {
     return this.get('isHead') && !this.gitEngine.getDetachedHead();
   },
 
-  onClick: function() {
+  onClick() {
     if (this.shouldDisableClick()) {
       return;
     }
 
-    var commandStr = 'git checkout ' + this.get('branch').get('id');
-    var Main = require('../app');
-    Main.getEventBaton().trigger('commandSubmitted', commandStr);
+    const commandString = `git checkout ${this.get('branch').get('id')}`;
+    const Main = require('../app');
+    Main.getEventBaton().trigger('commandSubmitted', commandString);
   },
 
-  updateName: function() {
+  updateName() {
     this.get('text').attr({
-      text: this.getName()
+      text: this.getName(),
     });
   },
 
-  getNonTextOpacity: function() {
+  getNonTextOpacity() {
     if (this.get('isHead')) {
       return this.gitEngine.getDetachedHead() ? 1 : 0;
     }
     if (this.getBranchStackIndex() !== 0) {
-      return 0.0;
+      return 0;
     }
 
     return 1;
   },
 
-  getTextOpacity: function() {
+  getTextOpacity() {
     if (this.get('isHead')) {
       return this.gitEngine.getDetachedHead() ? 1 : 0;
     }
@@ -501,36 +494,36 @@ var VisBranch = VisBase.extend({
     return 1;
   },
 
-  getStrokeWidth: function() {
+  getStrokeWidth() {
     if (this.getIsGoalAndNotCompared()) {
-      return this.get('stroke-width') / 5.0;
+      return this.get('stroke-width') / 5;
     }
 
     return this.get('stroke-width');
   },
 
-  getAttributes: function() {
-    var textOpacity = this.getTextOpacity();
+  getAttributes() {
+    const textOpacity = this.getTextOpacity();
     this.updateName();
 
-    var textPos = this.getTextPosition();
-    var rectPos = this.getRectPosition();
-    var rectSize = this.getRectSize();
+    const textPos = this.getTextPosition();
+    const rectPos = this.getRectPosition();
+    const rectSize = this.getRectSize();
 
-    var arrowPath = this.getArrowPath();
-    var dashArray = this.getDashArray();
-    var cursorStyle = (this.shouldDisableClick()) ?
-      'auto' :
-      'pointer';
+    const arrowPath = this.getArrowPath();
+    const dashArray = this.getDashArray();
+    const cursorStyle = (this.shouldDisableClick())
+      ? 'auto'
+      : 'pointer';
 
     return {
       css: {
-        cursor: cursorStyle
+        cursor: cursorStyle,
       },
       text: {
         x: textPos.x,
         y: textPos.y,
-        opacity: textOpacity
+        opacity: textOpacity,
       },
       rect: {
         x: rectPos.x,
@@ -541,7 +534,7 @@ var VisBranch = VisBase.extend({
         fill: this.getFill(),
         stroke: this.get('stroke'),
         'stroke-dasharray': dashArray,
-        'stroke-width': this.getStrokeWidth()
+        'stroke-width': this.getStrokeWidth(),
       },
       arrow: {
         path: arrowPath,
@@ -550,30 +543,30 @@ var VisBranch = VisBase.extend({
         stroke: this.get('stroke'),
         transform: this.getArrowTransform(),
         'stroke-dasharray': dashArray,
-        'stroke-width': this.getStrokeWidth()
-      }
+        'stroke-width': this.getStrokeWidth(),
+      },
     };
   },
 
-  animateUpdatedPos: function(speed, easing) {
-    var attr = this.getAttributes();
-    this.animateToAttr(attr, speed, easing);
+  animateUpdatedPos(speed, easing) {
+    const attribute = this.getAttributes();
+    this.animateToAttr(attribute, speed, easing);
   },
 
-  animateFromAttrToAttr: function(fromAttr, toAttr, speed, easing) {
+  animateFromAttrToAttr(fromAttribute, toAttribute, speed, easing) {
     // an animation of 0 is essentially setting the attribute directly
-    this.animateToAttr(fromAttr, 0);
-    this.animateToAttr(toAttr, speed, easing);
+    this.animateToAttr(fromAttribute, 0);
+    this.animateToAttr(toAttribute, speed, easing);
   },
 
-  setAttr: function(attr, instant, speed, easing) {
-    var keys = ['text', 'rect', 'arrow'];
-    this.setAttrBase(keys, attr, instant, speed, easing);
-  }
+  setAttr(attribute, instant, speed, easing) {
+    const keys = ['text', 'rect', 'arrow'];
+    this.setAttrBase(keys, attribute, instant, speed, easing);
+  },
 });
 
-var VisBranchCollection = Backbone.Collection.extend({
-  model: VisBranch
+const VisBranchCollection = Backbone.Collection.extend({
+  model: VisBranch,
 });
 
 exports.VisBranchCollection = VisBranchCollection;

@@ -1,41 +1,42 @@
-var Backbone = require('backbone');
-var Q = require('q');
+const Backbone = require('backbone');
+const Q = require('q');
 
-var GitEngine = require('../git').GitEngine;
-var AnimationFactory = require('../visuals/animation/animationFactory').AnimationFactory;
-var GitVisuals = require('../visuals').GitVisuals;
-var TreeCompare = require('../graph/treeCompare');
-var EventBaton = require('../util/eventBaton').EventBaton;
+const { GitEngine } = require('.');
+const { AnimationFactory } = require('../visuals/animation/animationFactory');
+const { GitVisuals } = require('../visuals');
+const TreeCompare = require('../graph/treeCompare');
+const { EventBaton } = require('../util/eventBaton');
 
-var Collections = require('../models/collections');
-var CommitCollection = Collections.CommitCollection;
-var BranchCollection = Collections.BranchCollection;
-var TagCollection = Collections.TagCollection;
-var Command = require('../models/commandModel').Command;
+const Collections = require('../models/collections');
 
-var mock = require('../util/mock').mock;
-var util = require('../util');
+const { CommitCollection } = Collections;
+const { BranchCollection } = Collections;
+const { TagCollection } = Collections;
+const { Command } = require('../models/commandModel');
+
+const { mock } = require('../util/mock');
+const util = require('../util');
 
 function getMockFactory() {
-  var mockFactory = {};
-  var mockReturn = function() {
-    var d = Q.defer();
+  const mockFactory = {};
+  const mockReturn = function () {
+    const d = Q.defer();
     // fall through!
     d.resolve();
     return d.promise;
   };
-  for (var key in AnimationFactory) {
+  for (const key in AnimationFactory) {
     mockFactory[key] = mockReturn;
   }
 
-  mockFactory.playRefreshAnimationAndFinish = function(gitVisuals, aQueue) {
+  mockFactory.playRefreshAnimationAndFinish = function (gitVisuals, aQueue) {
     aQueue.finish();
   };
-  mockFactory.refreshTree = function(aQueue, gitVisuals) {
+  mockFactory.refreshTree = function (aQueue, gitVisuals) {
     aQueue.finish();
   };
 
-  mockFactory.highlightEachWithPromise = function(chain, toRebase, destBranch) {
+  mockFactory.highlightEachWithPromise = function (chain, toRebase, destinationBranch) {
     // don't add any steps
     return chain;
   };
@@ -45,40 +46,40 @@ function getMockFactory() {
 
 function getMockVisualization() {
   return {
-    makeOrigin: function(options) {
-      var localRepo = options.localRepo;
-      var treeString = options.treeString;
+    makeOrigin(options) {
+      const { localRepo } = options;
+      const { treeString } = options;
 
-      var headless = new HeadlessGit();
+      const headless = new HeadlessGit();
       headless.gitEngine.loadTreeFromString(treeString);
       return {
         customEvents: {
-          on: function(key, cb, context) {
-            cb.apply(context, []);
-          }
+          on(key, callback, context) {
+            callback.apply(context, []);
+          },
         },
-        gitEngine: headless.gitEngine
+        gitEngine: headless.gitEngine,
       };
-    }
+    },
   };
 }
 
-var HeadlessGit = function() {
+var HeadlessGit = function () {
   this.init();
 };
 
-HeadlessGit.prototype.init = function() {
+HeadlessGit.prototype.init = function () {
   this.commitCollection = new CommitCollection();
   this.branchCollection = new BranchCollection();
   this.tagCollection = new TagCollection();
 
   // here we mock visuals and animation factory so the git engine
   // is headless
-  var animationFactory = getMockFactory();
-  var gitVisuals = mock(GitVisuals);
+  const animationFactory = getMockFactory();
+  const gitVisuals = mock(GitVisuals);
   // add some stuff for origin making
-  var mockVis = getMockVisualization();
-  gitVisuals.getVisualization = function() {
+  const mockVis = getMockVisualization();
+  gitVisuals.getVisualization = function () {
     return mockVis;
   };
 
@@ -86,55 +87,55 @@ HeadlessGit.prototype.init = function() {
     collection: this.commitCollection,
     branches: this.branchCollection,
     tags: this.tagCollection,
-    gitVisuals: gitVisuals,
-    animationFactory: animationFactory,
-    eventBaton: new EventBaton()
+    gitVisuals,
+    animationFactory,
+    eventBaton: new EventBaton(),
   });
   this.gitEngine.init();
 };
 
 // horrible hack so we can just quickly get a tree string for async git
 // operations, aka for git demonstration views
-var getTreeQuick = function(commandStr, getTreePromise) {
-  var deferred = Q.defer();
-  var headless = new HeadlessGit();
-  headless.sendCommand(commandStr, deferred);
-  deferred.promise.then(function() {
+const getTreeQuick = function (commandString, getTreePromise) {
+  const deferred = Q.defer();
+  const headless = new HeadlessGit();
+  headless.sendCommand(commandString, deferred);
+  deferred.promise.then(() => {
     getTreePromise.resolve(headless.gitEngine.exportTree());
   });
 };
 
-HeadlessGit.prototype.sendCommand = function(value, entireCommandPromise) {
-  var deferred = Q.defer();
-  var chain = deferred.promise;
-  var startTime = new Date().getTime();
+HeadlessGit.prototype.sendCommand = function (value, entireCommandPromise) {
+  const deferred = Q.defer();
+  let chain = deferred.promise;
+  const startTime = Date.now();
 
-  var commands = [];
+  const commands = [];
 
-  util.splitTextCommand(value, function(commandStr) {
-    chain = chain.then(function() {
-      var commandObj = new Command({
-        rawStr: commandStr
+  util.splitTextCommand(value, function (commandString) {
+    chain = chain.then(() => {
+      const commandObject = new Command({
+        rawStr: commandString,
       });
 
-      var thisDeferred = Q.defer();
-      this.gitEngine.dispatch(commandObj, thisDeferred);
-      commands.push(commandObj);
+      const thisDeferred = Q.defer();
+      this.gitEngine.dispatch(commandObject, thisDeferred);
+      commands.push(commandObject);
       return thisDeferred.promise;
-    }.bind(this));
+    });
   }, this);
 
-  chain.then(function() {
-    var nowTime = new Date().getTime();
+  chain.then(() => {
+    const nowTime = Date.now();
     if (entireCommandPromise) {
       entireCommandPromise.resolve(commands);
     }
   });
 
-  chain.fail(function(err) {
+  chain.fail((error) => {
     console.log('!!!!!!!! error !!!!!!!');
-    console.log(err);
-    console.log(err.stack);
+    console.log(error);
+    console.log(error.stack);
     console.log('!!!!!!!!!!!!!!!!!!!!!!');
   });
   deferred.resolve();

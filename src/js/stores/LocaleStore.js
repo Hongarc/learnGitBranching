@@ -1,16 +1,14 @@
-"use strict";
+const { EventEmitter } = require('events');
+const AppConstants = require('../constants/AppConstants');
+const AppDispatcher = require('../dispatcher/AppDispatcher');
+const util = require('../util');
 
-var AppConstants = require('../constants/AppConstants');
-var AppDispatcher = require('../dispatcher/AppDispatcher');
-var util = require('../util');
-var EventEmitter = require('events').EventEmitter;
-
-var ActionTypes = AppConstants.ActionTypes;
-var DEFAULT_LOCALE = 'en_US';
+const { ActionTypes } = AppConstants;
+const DEFAULT_LOCALE = 'en_US';
 
 // resolve the messy mapping between browser language
 // and our supported locales
-var langLocaleMap = {
+const langLocaleMap = {
   en: 'en_US',
   zh: 'zh_CN',
   ja: 'ja',
@@ -24,34 +22,33 @@ var langLocaleMap = {
   vi: 'vi',
   sl: 'sl_SI',
   pl: 'pl',
-  ta: 'ta_IN'
+  ta: 'ta_IN',
 };
 
-var headerLocaleMap = {
+const headerLocaleMap = {
   'zh-CN': 'zh_CN',
   'zh-TW': 'zh_TW',
   'pt-BR': 'pt_BR',
   'es-MX': 'es_MX',
   'es-ES': 'es_ES',
-  'sl-SI': 'sl_SI'
+  'sl-SI': 'sl_SI',
 };
 
-var supportedLocalesList = Object.values(langLocaleMap)
-                                 .concat(Object.values(headerLocaleMap))
-                                 .filter(function (value, index, self) { return self.indexOf(value) === index;});
+const supportedLocalesList = [...Object.values(langLocaleMap), ...Object.values(headerLocaleMap)]
+  .filter((value, index, self) => self.indexOf(value) === index);
 
 function _getLocaleFromHeader(langString) {
-  var languages = langString.split(',');
-  var desiredLocale;
-  for (var i = 0; i < languages.length; i++) {
-    var header = languages[i].split(';')[0];
+  const languages = langString.split(',');
+  let desiredLocale;
+  for (const language of languages) {
+    const header = language.split(';')[0];
     // first check the full string raw
     if (headerLocaleMap[header]) {
       desiredLocale = headerLocaleMap[header];
       break;
     }
 
-    var lang = header.slice(0, 2);
+    const lang = header.slice(0, 2);
     if (langLocaleMap[lang]) {
       desiredLocale = langLocaleMap[lang];
       break;
@@ -60,37 +57,35 @@ function _getLocaleFromHeader(langString) {
   return desiredLocale;
 }
 
-var _locale = DEFAULT_LOCALE;
-var LocaleStore = Object.assign(
-{},
-EventEmitter.prototype,
-AppConstants.StoreSubscribePrototype,
-{
+let _locale = DEFAULT_LOCALE;
+var LocaleStore = {
 
-  getDefaultLocale: function() {
+  ...EventEmitter.prototype,
+  ...AppConstants.StoreSubscribePrototype,
+  getDefaultLocale() {
     return DEFAULT_LOCALE;
   },
 
-  getLangLocaleMap: function() {
-    return Object.assign({}, langLocaleMap);
+  getLangLocaleMap() {
+    return { ...langLocaleMap };
   },
 
-  getHeaderLocaleMap: function() {
-    return Object.assign({}, headerLocaleMap);
+  getHeaderLocaleMap() {
+    return { ...headerLocaleMap };
   },
 
-  getLocale: function() {
+  getLocale() {
     return _locale;
   },
 
-  getSupportedLocales: function() {
+  getSupportedLocales() {
     return supportedLocalesList.slice();
   },
 
-  dispatchToken: AppDispatcher.register(function(payload) {
-    var action = payload.action;
-    var shouldInform = false;
-    var oldLocale = _locale;
+  dispatchToken: AppDispatcher.register((payload) => {
+    const { action } = payload;
+    let shouldInform = false;
+    const oldLocale = _locale;
 
     switch (action.type) {
       case ActionTypes.CHANGE_LOCALE:
@@ -107,7 +102,7 @@ AppConstants.StoreSubscribePrototype,
     }
 
     if (util.isBrowser() && oldLocale !== _locale) {
-      var url = new URL(document.location.href);
+      const url = new URL(document.location.href);
       url.searchParams.set('locale', _locale);
       window.history.replaceState({}, '', url.href);
     }
@@ -115,8 +110,7 @@ AppConstants.StoreSubscribePrototype,
     if (shouldInform) {
       LocaleStore.emit(AppConstants.CHANGE_EVENT);
     }
-  })
-
-});
+  }),
+};
 
 module.exports = LocaleStore;

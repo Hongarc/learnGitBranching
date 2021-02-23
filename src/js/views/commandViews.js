@@ -1,14 +1,14 @@
-var Backbone = require('backbone');
+const Backbone = require('backbone');
 
-var Main = require('../app');
-var CommandLineStore = require('../stores/CommandLineStore');
-var CommandLineActions = require('../actions/CommandLineActions');
+const Main = require('../app');
+const CommandLineStore = require('../stores/CommandLineStore');
+const CommandLineActions = require('../actions/CommandLineActions');
 
-var log = require('../log');
-var keyboard = require('../util/keyboard');
+const log = require('../log');
+const keyboard = require('../util/keyboard');
 
-var CommandPromptView = Backbone.View.extend({
-  initialize: function() {
+const CommandPromptView = Backbone.View.extend({
+  initialize() {
     Main.getEvents().on('commandSubmittedPassive', this.addToCommandHistory, this);
 
     this.index = -1;
@@ -19,80 +19,80 @@ var CommandPromptView = Backbone.View.extend({
 
     Main.getEventBaton().stealBaton('keydown', this.onKeyDown, this);
     Main.getEventBaton().stealBaton('keyup', this.onKeyUp, this);
-    this.updatePrompt(" ");
+    this.updatePrompt(' ');
   },
 
   events: {
     'blur #commandTextField': 'hideCursor',
-    'focus #commandTextField': 'showCursor'
+    'focus #commandTextField': 'showCursor',
   },
 
-  blur: function() {
+  blur() {
     this.hideCursor();
   },
 
-  focus: function() {
+  focus() {
     this.$('#commandTextField').focus();
     this.showCursor();
   },
 
-  hideCursor: function() {
+  hideCursor() {
     this.toggleCursor(false);
   },
 
-  showCursor: function() {
+  showCursor() {
     this.toggleCursor(true);
   },
 
-  toggleCursor: function(state) {
+  toggleCursor(state) {
     $(this.commandParagraph).toggleClass('showCursor', state);
   },
 
-  onKeyDown: function(e) {
+  onKeyDown(e) {
     // If its a tab, prevent losing focus
     if (e.keyCode === 9) {
       e.preventDefault();
       // Maybe one day do tab completion or something? :O
       return;
     }
-    var el = e.target;
-    this.updatePrompt(el);
+    const element = e.target;
+    this.updatePrompt(element);
   },
 
-  onKeyUp: function(e) {
+  onKeyUp(e) {
     this.onKeyDown(e);
 
     // we need to capture some of these events.
-    var keyToFuncMap = {
-      enter: function() {
+    const keyToFunctionMap = {
+      enter: function () {
         this.submit();
       }.bind(this),
-      up: function() {
+      up: function () {
         this.commandSelectChange(1);
       }.bind(this),
-      down: function() {
+      down: function () {
         this.commandSelectChange(-1);
-      }.bind(this)
+      }.bind(this),
     };
 
-    var key = keyboard.mapKeycodeToKey(e.which || e.keyCode);
-    if (keyToFuncMap[key] !== undefined) {
+    const key = keyboard.mapKeycodeToKey(e.which || e.keyCode);
+    if (keyToFunctionMap[key] !== undefined) {
       e.preventDefault();
-      keyToFuncMap[key]();
+      keyToFunctionMap[key]();
       this.onKeyDown(e);
     }
   },
 
-  badHtmlEncode: function(text) {
-    return text.replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/</g,'&lt;')
-      .replace(/ /g,'&nbsp;')
-      .replace(/\n/g,'');
+  badHtmlEncode(text) {
+    return text.replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/</g, '&lt;')
+      .replace(/ /g, '&nbsp;')
+      .replace(/\n/g, '');
   },
 
-  updatePrompt: function(el) {
-    el = el || {};  // firefox
+  updatePrompt(element) {
+    element = element || {}; // firefox
     // i WEEEPPPPPPpppppppppppp that this reflow takes so long. it adds this
     // super annoying delay to every keystroke... I have tried everything
     // to make this more performant. getting the srcElement from the event,
@@ -100,14 +100,14 @@ var CommandPromptView = Backbone.View.extend({
     // there's a very annoying and sightly noticeable command delay.
     // try.github.com also has this, so I'm assuming those engineers gave up as
     // well...
-    var text = $('#commandTextField').val();
+    let text = $('#commandTextField').val();
 
     // Alright so we have our initial value for what we want the
     // command line to contain. We need to next split into the
     // parse with the cursor and without
-    var selectionStart = el.selectionStart;
-    var selectionEnd = el.selectionEnd;
-    if (!text.length) {
+    let { selectionStart } = element;
+    let { selectionEnd } = element;
+    if (text.length === 0) {
       text = ' ';
       selectionStart = 0;
       selectionEnd = 1;
@@ -122,20 +122,20 @@ var CommandPromptView = Backbone.View.extend({
       selectionEnd = text.length;
     }
 
-    var before = text.substring(0, selectionStart);
-    var middle = text.substring(selectionStart, selectionEnd);
-    var end = text.substring(selectionEnd, text.length);
+    const before = text.slice(0, Math.max(0, selectionStart));
+    const middle = text.substring(selectionStart, selectionEnd);
+    const end = text.substring(selectionEnd, text.length);
 
     // Then just make three spans and slap it in.
-    var finalHTML = '<span>' + this.badHtmlEncode(before) + '</span>' +
-      '<span class="commandCursor">' + this.badHtmlEncode(middle) + '</span>' +
-      '<span>' + this.badHtmlEncode(end) + '</span>';
+    const finalHTML = `<span>${this.badHtmlEncode(before)}</span>`
+      + `<span class="commandCursor">${this.badHtmlEncode(middle)}</span>`
+      + `<span>${this.badHtmlEncode(end)}</span>`;
     this.commandParagraph.innerHTML = finalHTML;
     // and scroll down due to some weird bug
     Main.getEvents().trigger('commandScrollDown');
   },
 
-  commandSelectChange: function(delta) {
+  commandSelectChange(delta) {
     this.index += delta;
 
     // if we are over / under, display blank line. yes this eliminates your
@@ -147,45 +147,45 @@ var CommandPromptView = Backbone.View.extend({
     }
 
     // yay! we actually can display something
-    var commandEntry = CommandLineStore.getCommandHistory()[this.index];
+    const commandEntry = CommandLineStore.getCommandHistory()[this.index];
     this.setTextField(commandEntry);
   },
 
-  setTextField: function(value) {
+  setTextField(value) {
     this.$('#commandTextField').val(value);
   },
 
-  clear: function() {
+  clear() {
     this.setTextField('');
   },
 
-  submit: function() {
-    var value = this.$('#commandTextField').val().replace('\n', '');
+  submit() {
+    const value = this.$('#commandTextField').val().replace('\n', '');
     this.clear();
 
     this.submitCommand(value);
     this.index = -1;
   },
 
-  rollupCommands: function(numBack) {
-    var which = CommandLineStore.getCommandHistory().slice(1, Number(numBack) + 1);
+  rollupCommands(numberBack) {
+    const which = CommandLineStore.getCommandHistory().slice(1, Number(numberBack) + 1);
     which.reverse();
 
-    var str = '';
-    which.forEach(function(text) {
-      str += text + ';';
+    let string = '';
+    which.forEach((text) => {
+      string += `${text};`;
     }, this);
 
-    CommandLineActions.submitCommand(str);
+    CommandLineActions.submitCommand(string);
   },
 
-  addToCommandHistory: function(value) {
+  addToCommandHistory(value) {
     // we should add the command to our local storage history
     // if it's not a blank line and this is a new command...
     // or if we edited the command in place in history
-    var shouldAdd = (value.length && this.index === -1) ||
-      ((value.length && this.index !== -1 &&
-      CommandLineStore.getCommandHistory()[this.index] !== value));
+    const shouldAdd = (value.length && this.index === -1)
+      || ((value.length && this.index !== -1
+      && CommandLineStore.getCommandHistory()[this.index] !== value));
 
     if (!shouldAdd) {
       return;
@@ -195,9 +195,9 @@ var CommandPromptView = Backbone.View.extend({
     log.commandEntered(value);
   },
 
-  submitCommand: function(value) {
+  submitCommand(value) {
     Main.getEventBaton().trigger('commandSubmitted', value);
-  }
+  },
 });
 
 exports.CommandPromptView = CommandPromptView;

@@ -1,43 +1,41 @@
-var Backbone = require('backbone');
+const Backbone = require('backbone');
 
-var VisBase = Backbone.Model.extend({
-  removeKeys: function(keys) {
-    keys.forEach(function(key) {
+const VisBase = Backbone.Model.extend({
+  removeKeys(keys) {
+    keys.forEach(function (key) {
       if (this.get(key)) {
         this.get(key).remove();
       }
     }, this);
   },
 
-  animateAttrKeys: function(keys, attrObj, speed, easing) {
+  animateAttrKeys(keys, attributeObject, speed, easing) {
     // either we animate a specific subset of keys or all
     // possible things we could animate
-    keys = Object.assign(
-      {},
-      {
-        include: ['circle', 'arrow', 'rect', 'path', 'text'],
-        exclude: []
-      },
-      keys || {}
-    );
+    keys = {
 
-    var attr = this.getAttributes();
+      include: ['circle', 'arrow', 'rect', 'path', 'text'],
+      exclude: [],
+      ...keys || {},
+    };
+
+    const attribute = this.getAttributes();
 
     // safely insert this attribute into all the keys we want
-    keys.include.forEach(function(key) {
-      attr[key] = Object.assign(
-        {},
-        attr[key],
-        attrObj
-      );
-    });
+    for (const key of keys.include) {
+      attribute[key] = {
 
-    keys.exclude.forEach(function(key) {
-      delete attr[key];
-    });
+        ...attribute[key],
+        ...attributeObject,
+      };
+    }
 
-    this.animateToAttr(attr, speed, easing);
-  }
+    for (const key of keys.exclude) {
+      delete attribute[key];
+    }
+
+    this.animateToAttr(attribute, speed, easing);
+  },
 });
 
 exports.VisBase = VisBase;

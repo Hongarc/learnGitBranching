@@ -1,25 +1,22 @@
-var HelperBarView = require('../react_views/HelperBarView.jsx');
-var IntlHelperBarView =
-  require('../react_views/IntlHelperBarView.jsx');
-var CommandsHelperBarView =
-  require('../react_views/CommandsHelperBarView.jsx');
-var React = require('react');
+const React = require('react');
+const HelperBarView = require('./HelperBarView.jsx');
+const IntlHelperBarView = require('./IntlHelperBarView.jsx');
+const CommandsHelperBarView = require('./CommandsHelperBarView.jsx');
 
-var keyMirror = require('../util/keyMirror');
-var log = require('../log');
+const keyMirror = require('../util/keyMirror');
+const log = require('../log');
 
-var BARS = keyMirror({
+const BARS = keyMirror({
   SELF: null,
   INTL: null,
-  COMMANDS: null
+  COMMANDS: null,
 });
 
 class MainHelperBarView extends React.Component {
-
-  constructor(props, context) {
-    super(props, context);
+  constructor(properties, context) {
+    super(properties, context);
     this.state = {
-      shownBar: BARS.SELF
+      shownBar: BARS.SELF,
     };
   }
 
@@ -45,36 +42,35 @@ class MainHelperBarView extends React.Component {
 
   showSelf() {
     this.setState({
-      shownBar: BARS.SELF
+      shownBar: BARS.SELF,
     });
   }
 
   getItems() {
     return [{
       icon: 'question-sign',
-      onClick: function() {
+      onClick: function () {
         this.setState({
-          shownBar: BARS.COMMANDS
+          shownBar: BARS.COMMANDS,
         });
-      }.bind(this)
+      }.bind(this),
     }, {
       icon: 'globe',
-      onClick: function() {
+      onClick: function () {
         this.setState({
-          shownBar: BARS.INTL
+          shownBar: BARS.INTL,
         });
-      }.bind(this)
+      }.bind(this),
     }, {
       newPageLink: true,
       icon: 'twitter',
-      href: 'https://twitter.com/petermcottle'
+      href: 'https://twitter.com/petermcottle',
     }, {
       newPageLink: true,
       icon: 'facebook',
-      href: 'https://www.facebook.com/LearnGitBranching'
+      href: 'https://www.facebook.com/LearnGitBranching',
     }];
   }
-
-};
+}
 
 module.exports = MainHelperBarView;

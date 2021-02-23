@@ -1,60 +1,60 @@
-var intl = require('../intl');
+const intl = require('../intl');
 
-var Errors = require('../util/errors');
-var GitCommands = require('../git/commands');
-var MercurialCommands = require('../mercurial/commands');
+const Errors = require('../util/errors');
+const GitCommands = require('../git/commands');
+const MercurialCommands = require('../mercurial/commands');
 
-var CommandProcessError = Errors.CommandProcessError;
-var CommandResult = Errors.CommandResult;
+const { CommandProcessError } = Errors;
+const { CommandResult } = Errors;
 
-var commandConfigs = {
-  'git': GitCommands.commandConfig,
-  'hg': MercurialCommands.commandConfig
+const commandConfigs = {
+  git: GitCommands.commandConfig,
+  hg: MercurialCommands.commandConfig,
 };
 
-var commands = {
-  execute: function(vcs, name, engine, commandObj) {
+const commands = {
+  execute(vcs, name, engine, commandObject) {
     if (!commandConfigs[vcs][name]) {
-      throw new Error('i don\'t have a command for ' + name);
+      throw new Error(`i don't have a command for ${name}`);
     }
-    var config = commandConfigs[vcs][name];
+    const config = commandConfigs[vcs][name];
     if (config.delegate) {
-      return this.delegateExecute(config, engine, commandObj);
+      return this.delegateExecute(config, engine, commandObject);
     }
 
-    config.execute.call(this, engine, commandObj);
+    config.execute.call(this, engine, commandObject);
   },
 
-  delegateExecute: function(config, engine, commandObj) {
+  delegateExecute(config, engine, commandObject) {
     // we have delegated to another vcs command, so lets
     // execute that and get the result
-    var result = config.delegate.call(this, engine, commandObj);
+    const result = config.delegate.call(this, engine, commandObject);
 
     if (result.multiDelegate) {
       // we need to do multiple delegations with
       // a different command at each step
-      result.multiDelegate.forEach(function(delConfig) {
+      result.multiDelegate.forEach(function (delConfig) {
         // copy command, and then set opts
-        commandObj.setOptionsMap(delConfig.options || {});
-        commandObj.setGeneralArgs(delConfig.args || []);
+        commandObject.setOptionsMap(delConfig.options || {});
+        commandObject.setGeneralArgs(delConfig.args || []);
 
-        commandConfigs[delConfig.vcs][delConfig.name].execute.call(this, engine, commandObj);
+        commandConfigs[delConfig.vcs][delConfig.name].execute.call(this, engine, commandObject);
       }, this);
     } else {
       config = commandConfigs[result.vcs][result.name];
       // commandObj is PASSED BY REFERENCE
       // and modified in the function
-      commandConfigs[result.vcs][result.name].execute.call(this, engine, commandObj);
+      commandConfigs[result.vcs][result.name].execute.call(this, engine, commandObject);
     }
   },
 
-  blankMap: function() {
-    return {git: {}, hg: {}};
+  blankMap() {
+    return { git: {}, hg: {} };
   },
 
-  getShortcutMap: function() {
-    var map = this.blankMap();
-    this.loop(function(config, name, vcs) {
+  getShortcutMap() {
+    const map = this.blankMap();
+    this.loop((config, name, vcs) => {
       if (!config.sc) {
         return;
       }
@@ -63,24 +63,24 @@ var commands = {
     return map;
   },
 
-  getOptionMap: function() {
-    var optionMap = this.blankMap();
-    this.loop(function(config, name, vcs) {
-      var displayName = config.displayName || name;
-      var thisMap = {};
+  getOptionMap() {
+    const optionMap = this.blankMap();
+    this.loop((config, name, vcs) => {
+      const displayName = config.displayName || name;
+      const thisMap = {};
       // start all options off as disabled
-      (config.options || []).forEach(function(option) {
+      for (const option of (config.options || [])) {
         thisMap[option] = false;
-      });
+      }
       optionMap[vcs][displayName] = thisMap;
     });
     return optionMap;
   },
 
-  getRegexMap: function() {
-    var map = this.blankMap();
-    this.loop(function(config, name, vcs) {
-      var displayName = config.displayName || name;
+  getRegexMap() {
+    const map = this.blankMap();
+    this.loop((config, name, vcs) => {
+      const displayName = config.displayName || name;
       map[vcs][displayName] = config.regex;
     });
     return map;
@@ -89,9 +89,9 @@ var commands = {
   /**
    * which commands count for the git golf game
    */
-  getCommandsThatCount: function() {
-    var counted = this.blankMap();
-    this.loop(function(config, name, vcs) {
+  getCommandsThatCount() {
+    const counted = this.blankMap();
+    this.loop((config, name, vcs) => {
       if (config.dontCountForGolf) {
         return;
       }
@@ -100,29 +100,29 @@ var commands = {
     return counted;
   },
 
-  loop: function(callback, context) {
-    Object.keys(commandConfigs).forEach(function(vcs) {
-      var commandConfig = commandConfigs[vcs];
-      Object.keys(commandConfig).forEach(function(name) {
-        var config = commandConfig[name];
+  loop(callback, context) {
+    for (const vcs of Object.keys(commandConfigs)) {
+      const commandConfig = commandConfigs[vcs];
+      for (const name of Object.keys(commandConfig)) {
+        const config = commandConfig[name];
         callback(config, name, vcs);
-      });
-    });
-  }
+      }
+    }
+  },
 };
 
-var parse = function(str) {
-  var vcs;
-  var method;
-  var options;
+const parse = function (string) {
+  let vcs;
+  let method;
+  let options;
 
   // see if we support this particular command
-  var regexMap = commands.getRegexMap();
-  Object.keys(regexMap).forEach(function (thisVCS) {
-    var map = regexMap[thisVCS];
-    Object.keys(map).forEach(function(thisMethod) {
-      var regex = map[thisMethod];
-      if (regex.exec(str)) {
+  const regexMap = commands.getRegexMap();
+  for (const thisVCS of Object.keys(regexMap)) {
+    const map = regexMap[thisVCS];
+    for (const thisMethod of Object.keys(map)) {
+      const regex = map[thisMethod];
+      if (regex.test(string)) {
         vcs = thisVCS;
         method = thisMethod;
         // every valid regex has to have the parts of
@@ -131,10 +131,10 @@ var parse = function(str) {
         // before our "stuff" we can simply
         // split on space-groups and grab everything after
         // the second:
-        options = str.match(/('.*?'|".*?"|\S+)/g).slice(2);
+        options = string.match(/('.*?'|".*?"|\S+)/g).slice(2);
       }
-    });
-  });
+    }
+  }
 
   if (!method) {
     return false;
@@ -142,18 +142,18 @@ var parse = function(str) {
 
   // we support this command!
   // parse off the options and assemble the map / general args
-  var parsedOptions = new CommandOptionParser(vcs, method, options);
-  var error = parsedOptions.explodeAndSet();
+  const parsedOptions = new CommandOptionParser(vcs, method, options);
+  const error = parsedOptions.explodeAndSet();
   return {
     toSet: {
       generalArgs: parsedOptions.generalArgs,
       supportedMap: parsedOptions.supportedMap,
-      error: error,
-      vcs: vcs,
-      method: method,
-      options: options,
-      eventName: 'processGitCommand'
-    }
+      error,
+      vcs,
+      method,
+      options,
+      eventName: 'processGitCommand',
+    },
   };
 };
 
@@ -167,36 +167,36 @@ function CommandOptionParser(vcs, method, options) {
 
   this.supportedMap = commands.getOptionMap()[vcs][method];
   if (this.supportedMap === undefined) {
-    throw new Error('No option map for ' + method);
+    throw new Error(`No option map for ${method}`);
   }
 
   this.generalArgs = [];
 }
 
-CommandOptionParser.prototype.explodeAndSet = function() {
-  for (var i = 0; i < this.rawOptions.length; i++) {
-    var part = this.rawOptions[i];
+CommandOptionParser.prototype.explodeAndSet = function () {
+  for (let index = 0; index < this.rawOptions.length; index++) {
+    const part = this.rawOptions[index];
 
-    if (part.slice(0,1) == '-') {
+    if (part.slice(0, 1) == '-') {
       // it's an option, check supportedMap
       if (this.supportedMap[part] === undefined) {
         return new CommandProcessError({
           msg: intl.str(
             'option-not-supported',
-            { option: part }
-          )
+            { option: part },
+          ),
         });
       }
 
-      var next = this.rawOptions[i + 1];
-      var optionArgs = [];
-      if (next && next.slice(0,1) !== '-') {
+      const next = this.rawOptions[index + 1];
+      let optionArguments = [];
+      if (next && next.slice(0, 1) !== '-') {
         // only store the next argument as this
         // option value if its not another option
-        i++;
-        optionArgs = [next];
+        index++;
+        optionArguments = [next];
       }
-      this.supportedMap[part] = optionArgs;
+      this.supportedMap[part] = optionArguments;
     } else {
       // must be a general arg
       this.generalArgs.push(part);

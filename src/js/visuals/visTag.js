@@ -1,16 +1,16 @@
-var Backbone = require('backbone');
-var GRAPHICS = require('../util/constants').GRAPHICS;
+const Backbone = require('backbone');
+const { GRAPHICS } = require('../util/constants');
 
-var VisBase = require('../visuals/visBase').VisBase;
-var TreeCompare = require('../graph/treeCompare');
+const { VisBase } = require('./visBase');
+const TreeCompare = require('../graph/treeCompare');
 
-var randomHueString = function() {
-  var hue = Math.random();
-  var str = 'hsb(' + String(hue) + ',0.7,1)';
-  return str;
+const randomHueString = function () {
+  const hue = Math.random();
+  const string = `hsb(${String(hue)},0.7,1)`;
+  return string;
 };
 
-var VisTag = VisBase.extend({
+const VisTag = VisBase.extend({
   defaults: {
     pos: null,
     text: null,
@@ -28,20 +28,20 @@ var VisTag = VisBase.extend({
     hPad: 2,
 
     animationSpeed: GRAPHICS.defaultAnimationTime,
-    animationEasing: GRAPHICS.defaultEasing
+    animationEasing: GRAPHICS.defaultEasing,
   },
 
-  validateAtInit: function() {
+  validateAtInit() {
     if (!this.get('tag')) {
       throw new Error('need a Tag!');
     }
   },
 
-  getID: function() {
+  getID() {
     return this.get('tag').get('id');
   },
 
-  initialize: function() {
+  initialize() {
     this.validateAtInit();
 
     // shorthand notation for the main objects
@@ -54,21 +54,21 @@ var VisTag = VisBase.extend({
     this.get('tag').set('visTag', this);
   },
 
-  getCommitPosition: function() {
-    var commit = this.gitEngine.getCommitFromRef(this.get('tag'));
-    var visNode = commit.get('visNode');
+  getCommitPosition() {
+    const commit = this.gitEngine.getCommitFromRef(this.get('tag'));
+    const visNode = commit.get('visNode');
 
     return visNode.getScreenCoords();
   },
 
-  getDashArray: function() {
+  getDashArray() {
     if (!this.get('gitVisuals').getIsGoalVis()) {
       return '';
     }
     return (this.getIsLevelTagCompared()) ? '' : '--';
   },
 
-  getIsGoalAndNotCompared: function() {
+  getIsGoalAndNotCompared() {
     if (!this.get('gitVisuals').getIsGoalVis()) {
       return false;
     }
@@ -80,29 +80,29 @@ var VisTag = VisBase.extend({
    * returns true if we are a Tag that is not being
    * compared in the goal (used in a goal visualization context
    */
-  getIsLevelTagCompared: function() {
+  getIsLevelTagCompared() {
     // we are not master, so return true if its not just master being compared
-    var levelBlob = this.get('gitVisuals').getLevelBlob();
+    const levelBlob = this.get('gitVisuals').getLevelBlob();
     return !TreeCompare.onlyMasterCompared(levelBlob);
   },
 
-  getTagStackIndex: function() {
+  getTagStackIndex() {
     if (this.get('isHead')) {
       // head is never stacked with other Tags
       return 0;
     }
 
-    var myArray = this.getTagStackArray();
-    var index = -1;
-    myArray.forEach(function(Tag, i) {
-      if (Tag.obj == this.get('tag')) {
-        index = i;
+    const myArray = this.getTagStackArray();
+    let index = -1;
+    myArray.forEach(function (Tag, index_) {
+      if (Tag.obj === this.get('tag')) {
+        index = index_;
       }
     }, this);
     return index;
   },
 
-  getTagStackLength: function() {
+  getTagStackLength() {
     if (this.get('isHead')) {
       // head is always by itself
       return 1;
@@ -111,167 +111,165 @@ var VisTag = VisBase.extend({
     return this.getTagStackArray().length;
   },
 
-  isTagStackEmpty: function() {
+  isTagStackEmpty() {
     // useful function for head when computing flip logic
-    var arr = this.gitVisuals.tagStackMap[this.getCommitID()];
-    return (arr) ?
-      arr.length === 0 :
-      true;
+    const array = this.gitVisuals.tagStackMap[this.getCommitID()];
+    return (array)
+      ? array.length === 0
+      : true;
   },
 
-  getCommitID: function() {
-    var target = this.get('tag').get('target');
+  getCommitID() {
+    const target = this.get('tag').get('target');
     return target.get('id');
   },
 
-  getTagStackArray: function() {
-    var arr = this.gitVisuals.tagStackMap[this.getCommitID()];
-    if (arr === undefined) {
+  getTagStackArray() {
+    const array = this.gitVisuals.tagStackMap[this.getCommitID()];
+    if (array === undefined) {
       // this only occurs when we are generating graphics inside of
       // a new Tag instantiation, so we need to force the update
       this.gitVisuals.calcTagStacks();
       return this.getTagStackArray();
     }
-    return arr;
+    return array;
   },
 
-  getTextPosition: function() {
-    var pos = this.getCommitPosition();
+  getTextPosition() {
+    const pos = this.getCommitPosition();
 
     // then order yourself accordingly. we use alphabetical sorting
     // so everything is independent
-    var myPos = this.getTagStackIndex();
+    const myPos = this.getTagStackIndex();
 
     return {
       x: pos.x + this.get('offsetX'),
-      y: pos.y + myPos * GRAPHICS.multiTagY + this.get('offsetY')
+      y: pos.y + myPos * GRAPHICS.multiTagY + this.get('offsetY'),
     };
   },
 
-  getRectPosition: function() {
-    var pos = this.getTextPosition();
+  getRectPosition() {
+    const pos = this.getTextPosition();
 
     // first get text width and height
-    var textSize = this.getTextSize();
+    const textSize = this.getTextSize();
     return {
       x: pos.x - this.get('hPad'),
-      y: pos.y - 0.5 * textSize.h - this.get('vPad')
+      y: pos.y - 0.5 * textSize.h - this.get('vPad'),
     };
   },
 
-  getTextSize: function() {
-    var getTextWidth = function(visTag) {
-      var textNode = (visTag.get('text')) ? visTag.get('text').node : null;
+  getTextSize() {
+    const getTextWidth = function (visTag) {
+      const textNode = (visTag.get('text')) ? visTag.get('text').node : null;
       return (textNode === null) ? 0 : textNode.getBoundingClientRect().width;
     };
 
-    var firefoxFix = function(obj) {
-      if (!obj.w) { obj.w = 75; }
-      if (!obj.h) { obj.h = 20; }
-      return obj;
+    const firefoxFix = function (object) {
+      if (!object.w) { object.w = 75; }
+      if (!object.h) { object.h = 20; }
+      return object;
     };
 
-    var textNode = this.get('text').node;
+    const textNode = this.get('text').node;
 
-    var maxWidth = 0;
-    this.getTagStackArray().forEach(function(Tag) {
+    let maxWidth = 0;
+    for (const Tag of this.getTagStackArray()) {
       maxWidth = Math.max(maxWidth, getTextWidth(
-        Tag.obj.get('visTag')
+        Tag.obj.get('visTag'),
       ));
-    });
+    }
 
     return firefoxFix({
       w: maxWidth,
-      h: textNode.clientHeight
+      h: textNode.clientHeight,
     });
   },
 
-  getSingleRectSize: function() {
-    var textSize = this.getTextSize();
-    var vPad = this.get('vPad');
-    var hPad = this.get('hPad');
+  getSingleRectSize() {
+    const textSize = this.getTextSize();
+    const vPad = this.get('vPad');
+    const hPad = this.get('hPad');
     return {
       w: textSize.w + vPad * 2,
-      h: textSize.h + hPad * 2
+      h: textSize.h + hPad * 2,
     };
   },
 
-  getRectSize: function() {
-    var textSize = this.getTextSize();
+  getRectSize() {
+    const textSize = this.getTextSize();
     // enforce padding
-    var vPad = this.get('vPad');
-    var hPad = this.get('hPad');
+    const vPad = this.get('vPad');
+    const hPad = this.get('hPad');
 
     // number of other Tag names we are housing
-    var totalNum = this.getTagStackLength();
+    const totalNumber = this.getTagStackLength();
     return {
       w: textSize.w + vPad * 2,
-      h: textSize.h * totalNum + hPad * 2
+      h: textSize.h * totalNumber + hPad * 2,
     };
   },
 
-  getIsRemote: function() {
+  getIsRemote() {
     return this.get('tag').getIsRemote();
   },
 
-  getName: function() {
-    var name = this.get('tag').getName();
-    var isRemote = this.getIsRemote();
-    var isHg = this.gitEngine.getIsHg();
+  getName() {
+    const name = this.get('tag').getName();
+    const isRemote = this.getIsRemote();
+    const isHg = this.gitEngine.getIsHg();
 
     return name;
   },
 
-  nonTextToFront: function() {
+  nonTextToFront() {
     this.get('rect').toFront();
   },
 
-  textToFront: function() {
+  textToFront() {
     this.get('text').toFront();
   },
 
-  textToFrontIfInStack: function() {
+  textToFrontIfInStack() {
     if (this.getTagStackIndex() !== 0) {
       this.get('text').toFront();
     }
   },
 
-  remove: function() {
+  remove() {
     this.removeKeys(['text', 'rect']);
     // also need to remove from this.gitVisuals
     this.gitVisuals.removeVisTag(this);
   },
 
-  handleModeChange: function() {
+  handleModeChange() {},
 
-  },
-
-  genGraphics: function(paper) {
-    var textPos = this.getTextPosition();
-    var name = this.getName();
+  genGraphics(paper) {
+    const textPos = this.getTextPosition();
+    const name = this.getName();
 
     // when from a reload, we don't need to generate the text
-    var text = paper.text(textPos.x, textPos.y, String(name));
+    const text = paper.text(textPos.x, textPos.y, String(name));
     text.attr({
       'font-size': 14,
-      'font-family': 'Menlo, Monaco, Consolas, \'Droid Sans Mono\', monospace',
+      'font-family': "Menlo, Monaco, Consolas, 'Droid Sans Mono', monospace",
       opacity: this.getTextOpacity(),
-      'text-anchor': 'start'
+      'text-anchor': 'start',
     });
     this.set('text', text);
-    var attr = this.getAttributes();
+    const attribute = this.getAttributes();
 
-    var rectPos = this.getRectPosition();
-    var sizeOfRect = this.getRectSize();
-    var rect = paper
+    const rectPos = this.getRectPosition();
+    const sizeOfRect = this.getRectSize();
+    const rect = paper
       .rect(rectPos.x, rectPos.y, sizeOfRect.w, sizeOfRect.h, 8)
-      .attr(attr.rect);
+      .attr(attribute.rect);
     this.set('rect', rect);
 
     // set CSS
-    var keys = ['text', 'rect'];
-    keys.forEach(function(key) {
-      $(this.get(key).node).css(attr.css);
+    const keys = ['text', 'rect'];
+    keys.forEach(function (key) {
+      $(this.get(key).node).css(attribute.css);
     }, this);
 
     this.attachClickHandlers();
@@ -279,52 +277,52 @@ var VisTag = VisBase.extend({
     text.toFront();
   },
 
-  attachClickHandlers: function() {
+  attachClickHandlers() {
     if (this.get('gitVisuals').options.noClick) {
       return;
     }
-    var objs = [
+    const objs = [
       this.get('rect'),
-      this.get('text')
+      this.get('text'),
     ];
 
-    objs.forEach(function(rObj) {
-      rObj.click(this.onClick.bind(this));
+    objs.forEach(function (rObject) {
+      rObject.click(this.onClick.bind(this));
     }, this);
   },
 
-  shouldDisableClick: function() {
+  shouldDisableClick() {
     return this.get('isHead') && !this.gitEngine.getDetachedHead();
   },
 
-  onClick: function() {
+  onClick() {
     if (this.shouldDisableClick()) {
       return;
     }
 
-    var commandStr = 'git checkout ' + this.get('tag').get('id');
-    var Main = require('../app');
-    Main.getEventBaton().trigger('commandSubmitted', commandStr);
+    const commandString = `git checkout ${this.get('tag').get('id')}`;
+    const Main = require('../app');
+    Main.getEventBaton().trigger('commandSubmitted', commandString);
   },
 
-  updateName: function() {
+  updateName() {
     this.get('text').attr({
-      text: this.getName()
+      text: this.getName(),
     });
   },
 
-  getNonTextOpacity: function() {
+  getNonTextOpacity() {
     if (this.get('isHead')) {
       return this.gitEngine.getDetachedHead() ? 1 : 0;
     }
     if (this.getTagStackIndex() !== 0) {
-      return 0.0;
+      return 0;
     }
 
     return 1;
   },
 
-  getTextOpacity: function() {
+  getTextOpacity() {
     if (this.get('isHead')) {
       return this.gitEngine.getDetachedHead() ? 1 : 0;
     }
@@ -336,35 +334,35 @@ var VisTag = VisBase.extend({
     return 1;
   },
 
-  getStrokeWidth: function() {
+  getStrokeWidth() {
     if (this.getIsGoalAndNotCompared()) {
-      return this.get('stroke-width') / 5.0;
+      return this.get('stroke-width') / 5;
     }
 
     return this.get('stroke-width');
   },
 
-  getAttributes: function() {
-    var textOpacity = this.getTextOpacity();
+  getAttributes() {
+    const textOpacity = this.getTextOpacity();
     this.updateName();
 
-    var textPos = this.getTextPosition();
-    var rectPos = this.getRectPosition();
-    var rectSize = this.getRectSize();
+    const textPos = this.getTextPosition();
+    const rectPos = this.getRectPosition();
+    const rectSize = this.getRectSize();
 
-    var dashArray = this.getDashArray();
-    var cursorStyle = (this.shouldDisableClick()) ?
-      'auto' :
-      'pointer';
+    const dashArray = this.getDashArray();
+    const cursorStyle = (this.shouldDisableClick())
+      ? 'auto'
+      : 'pointer';
 
     return {
       css: {
-        cursor: cursorStyle
+        cursor: cursorStyle,
       },
       text: {
         x: textPos.x,
         y: textPos.y,
-        opacity: textOpacity
+        opacity: textOpacity,
       },
       rect: {
         x: rectPos.x,
@@ -375,30 +373,30 @@ var VisTag = VisBase.extend({
         fill: this.get('fill'),
         stroke: this.get('stroke'),
         'stroke-dasharray': dashArray,
-        'stroke-width': this.getStrokeWidth()
-      }
+        'stroke-width': this.getStrokeWidth(),
+      },
     };
   },
 
-  animateUpdatedPos: function(speed, easing) {
-    var attr = this.getAttributes();
-    this.animateToAttr(attr, speed, easing);
+  animateUpdatedPos(speed, easing) {
+    const attribute = this.getAttributes();
+    this.animateToAttr(attribute, speed, easing);
   },
 
-  animateFromAttrToAttr: function(fromAttr, toAttr, speed, easing) {
+  animateFromAttrToAttr(fromAttribute, toAttribute, speed, easing) {
     // an animation of 0 is essentially setting the attribute directly
-    this.animateToAttr(fromAttr, 0);
-    this.animateToAttr(toAttr, speed, easing);
+    this.animateToAttr(fromAttribute, 0);
+    this.animateToAttr(toAttribute, speed, easing);
   },
 
-  setAttr: function(attr, instant, speed, easing) {
-    var keys = ['text', 'rect'];
-    this.setAttrBase(keys, attr, instant, speed, easing);
-  }
+  setAttr(attribute, instant, speed, easing) {
+    const keys = ['text', 'rect'];
+    this.setAttrBase(keys, attribute, instant, speed, easing);
+  },
 });
 
-var VisTagCollection = Backbone.Collection.extend({
-  model: VisTag
+const VisTagCollection = Backbone.Collection.extend({
+  model: VisTag,
 });
 
 exports.VisTagCollection = VisTagCollection;

@@ -1,16 +1,16 @@
 exports.dialog = {
-  'en_US': [{
+  en_US: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
         '## Welcome to Learn Git Branching',
         '',
-        'Interested in learning Git? Well you\'ve come to the right place! ',
+        "Interested in learning Git? Well you've come to the right place! ",
         '"Learn Git Branching" is the most visual and interactive way to learn Git ',
-        'on the web; you\'ll be challenged with exciting levels, given step-by-step ',
+        "on the web; you'll be challenged with exciting levels, given step-by-step ",
         'demonstrations of powerful features, and maybe even have a bit of fun along the way.',
         '',
-        'After this dialog you\'ll see the variety of levels we have to offer. If you\'re a ',
+        "After this dialog you'll see the variety of levels we have to offer. If you're a ",
         'beginner, just go ahead and start with the first. If you already know some Git basics, ',
         'try some of our later more challenging levels.',
         '',
@@ -23,13 +23,13 @@ exports.dialog = {
         'PPS: GitHub (and the industry at large) is moving to naming the default branch as `main` instead of `master` ',
         'with [more details available here](https://github.com/github/renaming). In order to accommodate this change in ',
         'a backwards-compatible way, these two names will be considered aliases of each other, with `main` being ',
-        'the preferred one to display. We\'ve made a best-effort attempt to update all of the level content, but ',
+        "the preferred one to display. We've made a best-effort attempt to update all of the level content, but ",
         'there will be a long-tail of areas we have missed. Please submit a PR (or open an issue) if you spot any ',
-        'egregious ones, and thanks for helping move away from biased terminology.'
-      ]
-    }
+        'egregious ones, and thanks for helping move away from biased terminology.',
+      ],
+    },
   }],
-  'es_AR': [{
+  es_AR: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -48,9 +48,9 @@ exports.dialog = {
         '',
         '¿Harto de este mensaje? Agregale `?NODEMO` a la URL para dejar de verlo, como en este link:',
         '',
-        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)'
-      ]
-    }
+        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -66,9 +66,9 @@ exports.dialog = {
         ' * reset',
         ' * revert',
         ' * rebase',
-        ' * merge'
-      ]
-    }
+        ' * merge',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -81,11 +81,11 @@ exports.dialog = {
         '',
         'Para ver todos los comandos disponibles, probá `show commands`. Hay algunas joyitas como `undo` y `reset`',
         '',
-        'Por ahora, arranquemos con los `levels`...'
-      ]
-    }
+        'Por ahora, arranquemos con los `levels`...',
+      ],
+    },
   }],
-  'es_MX': [{
+  es_MX: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -104,9 +104,9 @@ exports.dialog = {
         '',
         '¿Harto de este mensaje? Agregale `?NODEMO` a la URL para dejar de verlo, como en éste link:',
         '',
-        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)'
-      ]
-    }
+        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -122,9 +122,9 @@ exports.dialog = {
         ' * reset',
         ' * revert',
         ' * rebase',
-        ' * merge'
-      ]
-    }
+        ' * merge',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -137,11 +137,11 @@ exports.dialog = {
         '',
         'Para ver todos los comandos disponibles, prueba `show commands`. Hay algunos muy prácticos como `undo` y `reset`',
         '',
-        'Por ahora, arranquemos con los `levels`...'
-      ]
-    }
+        'Por ahora, arranquemos con los `levels`...',
+      ],
+    },
   }],
-  'es_ES': [{
+  es_ES: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -160,9 +160,9 @@ exports.dialog = {
         '',
         '¿Harto de este mensaje? Agrégale `?NODEMO` a la URL para dejar de verlo, como en este link:',
         '',
-        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)'
-      ]
-    }
+        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -178,9 +178,9 @@ exports.dialog = {
         ' * reset',
         ' * revert',
         ' * rebase',
-        ' * merge'
-      ]
-    }
+        ' * merge',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -193,11 +193,11 @@ exports.dialog = {
         '',
         'Para ver todos los comandos disponibles, escribe `show commands`. Hay algunas joyitas como `undo` y `reset`',
         '',
-        'Por ahora, empecemos con los `levels`...'
-      ]
-    }
+        'Por ahora, empecemos con los `levels`...',
+      ],
+    },
   }],
-  'pt_BR': [{
+  pt_BR: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -216,9 +216,9 @@ exports.dialog = {
         '',
         'Farto desta mensagem? Acrescente `?NODEMO` ao endereço para se livrar dela, como no link abaixo:',
         '',
-        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)'
-      ]
-    }
+        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -234,9 +234,9 @@ exports.dialog = {
         ' * reset',
         ' * revert',
         ' * rebase',
-        ' * merge'
-      ]
-    }
+        ' * merge',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -249,11 +249,11 @@ exports.dialog = {
         '',
         'Para ver todos os comandos, use `show commands`. Há algumas jóias como `undo` e `reset`',
         '',
-        'Por hora, vamos começar com o `levels`...'
-      ]
-    }
+        'Por hora, vamos começar com o `levels`...',
+      ],
+    },
   }],
-  'gl': [{
+  gl: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -272,9 +272,9 @@ exports.dialog = {
         '',
         '¿Farto destas mensaxes? Engade `?NODEMO` á dirección para librarte dela, como no link de abaixo:',
         '',
-        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)'
-      ]
-    }
+        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -290,9 +290,9 @@ exports.dialog = {
         ' * reset',
         ' * revert',
         ' * rebase',
-        ' * merge'
-      ]
-    }
+        ' * merge',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -305,11 +305,11 @@ exports.dialog = {
         '',
         'Para ver tódolos comandos, usa `show commands`. Hai algunha xoia como `undo` e `reset`',
         '',
-        'Por agora, imos comezar cos `levels`...'
-      ]
-    }
+        'Por agora, imos comezar cos `levels`...',
+      ],
+    },
   }],
-  'de_DE': [{
+  de_DE: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -325,9 +325,9 @@ exports.dialog = {
         '',
         'Genervt von diesem Fenster? Häng `?NODEMO` an die URL um es los zu werden, so wie hier:',
         '',
-        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)'
-      ]
-    }
+        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -343,9 +343,9 @@ exports.dialog = {
         ' * reset',
         ' * revert',
         ' * rebase',
-        ' * merge'
-      ]
-    }
+        ' * merge',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -356,13 +356,13 @@ exports.dialog = {
         '',
         'Hast du Wissenswertes zu Git zu vermitteln? Versuch einen Level mit `build level` zu bauen oder probier den Level eines Freundes mit `import level` aus.',
         '',
-        'Um alle Kommandos zu sehen, gib `show commands` ein. Darunter gibt\'s kleine Schätze wie `undo` und `reset`.',
+        "Um alle Kommandos zu sehen, gib `show commands` ein. Darunter gibt's kleine Schätze wie `undo` und `reset`.",
         '',
-        'Für\'s Erste lass uns mit `levels` anfangen ...'
-      ]
-    }
+        "Für's Erste lass uns mit `levels` anfangen ...",
+      ],
+    },
   }],
-  'ja': [{
+  ja: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -381,9 +381,9 @@ exports.dialog = {
         '',
         'このダイアログ自体を省略するには、以下のようにURLの末尾にクエリストリング`?NODEMO`を付加してアクセスしてください。',
         '',
-        '[https://pcottle.github.io/learnGitBranching/?NODEMO](https://pcottle.github.io/learnGitBranching/?NODEMO&locale=ja)'
-      ]
-    }
+        '[https://pcottle.github.io/learnGitBranching/?NODEMO](https://pcottle.github.io/learnGitBranching/?NODEMO&locale=ja)',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -399,9 +399,9 @@ exports.dialog = {
         ' * reset',
         ' * revert',
         ' * rebase',
-        ' * merge'
-      ]
-    }
+        ' * merge',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -418,11 +418,11 @@ exports.dialog = {
         '',
         'それでは教材の選択画面に進んでみることにします。',
         '',
-        '（なお、日本語版製作者のフォークサイトは[こちら](https://remore.github.io/learnGitBranching-ja/)になります。）'
-      ]
-    }
+        '（なお、日本語版製作者のフォークサイトは[こちら](https://remore.github.io/learnGitBranching-ja/)になります。）',
+      ],
+    },
   }],
-  'zh_CN': [{
+  zh_CN: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -439,11 +439,11 @@ exports.dialog = {
         '',
         '如果你还没看过演示，请[到此](?demo)查看。',
         '',
-        'PS：想直接进入沙盒？ 在 URL 后头加上 `?NODEMO` 就可以了，试一下[这个链接](?NODEMO)：'
-      ]
-    }
+        'PS：想直接进入沙盒？ 在 URL 后头加上 `?NODEMO` 就可以了，试一下[这个链接](?NODEMO)：',
+      ],
+    },
   }],
-  'zh_TW': [{
+  zh_TW: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -460,9 +460,9 @@ exports.dialog = {
         '',
         '厭煩這個對話視窗嗎？在 URL 後頭加上 `?NODEMO` 就看不到它了，也可以直接點下邊這個連結：',
         '',
-        '[https://pcottle.github.io/learnGitBranching/?NODEMO](https://pcottle.github.io/learnGitBranching/?NODEMO)'
-      ]
-    }
+        '[https://pcottle.github.io/learnGitBranching/?NODEMO](https://pcottle.github.io/learnGitBranching/?NODEMO)',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -478,9 +478,9 @@ exports.dialog = {
         ' * reset',
         ' * revert',
         ' * rebase',
-        ' * merge'
-      ]
-    }
+        ' * merge',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -491,11 +491,11 @@ exports.dialog = {
         '',
         '有個好課程可以分享？試試用 `build level` 創建一個關卡，或者 `import level` 試試朋友的。',
         '',
-        '言歸正傳，讓我們先從 `levels` 開始……'
-      ]
-    }
+        '言歸正傳，讓我們先從 `levels` 開始……',
+      ],
+    },
   }],
-  'ko': [{
+  ko: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -508,9 +508,9 @@ exports.dialog = {
         '이 애플리케이션은 [Peter Cottle](https://github.io/pcottle)님의 [LearnGitBranching](https://pcottle.github.io/learnGitBranching/)를 번역한 것입니다.',
         '아래 데모를 먼저 보셔도 좋습니다.',
         '',
-        '<https://pcottle.github.io/learnGitBranching/?demo&locale=ko>'
-      ]
-    }
+        '<https://pcottle.github.io/learnGitBranching/?demo&locale=ko>',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -526,9 +526,9 @@ exports.dialog = {
         ' * reset',
         ' * revert',
         ' * rebase',
-        ' * merge'
-      ]
-    }
+        ' * merge',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -539,11 +539,11 @@ exports.dialog = {
         '',
         '훌륭한 학습 자료가 있으신가요? `build level`로 레벨을 만들어 보시거나, 친구의 레벨을 `import level`로 가져와서 실험해보세요',
         '',
-        '이제 레슨을 시작해봅시다...'
-      ]
-    }
+        '이제 레슨을 시작해봅시다...',
+      ],
+    },
   }],
-  'fr_FR': [{
+  fr_FR: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -552,19 +552,19 @@ exports.dialog = {
         'Cette application a été conçue pour aider les débutants à saisir ',
         'les puissants concepts derrière les branches en travaillant ',
         'avec git. Nous espérons que vous apprécierez cette application et ',
-        'que vous apprendrez peut-être quelque chose d\'intéressant !',
+        "que vous apprendrez peut-être quelque chose d'intéressant !",
         '',
         '# Démo !',
         '',
-        'Si vous n\'avez pas vu la démo, vous pouvez le faire là :',
+        "Si vous n'avez pas vu la démo, vous pouvez le faire là :",
         '',
         '[https://pcottle.github.io/learnGitBranching/?demo](https://pcottle.github.io/learnGitBranching/?demo)',
         '',
-        'Agacé par ce dialogue ? Ajoutez `?NODEMO` à l\'URL pour le supprimer, en lien ci-dessous pour votre commodité :',
+        "Agacé par ce dialogue ? Ajoutez `?NODEMO` à l'URL pour le supprimer, en lien ci-dessous pour votre commodité :",
         '',
-        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)'
-      ]
-    }
+        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -580,26 +580,26 @@ exports.dialog = {
         ' * reset',
         ' * revert',
         ' * rebase',
-        ' * merge'
-      ]
-    }
+        ' * merge',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
       markdowns: [
-        '## Partager, c\'est se soucier !',
+        "## Partager, c'est se soucier !",
         '',
         'Partagez des arbres avec vos amis via `export tree` et `import tree`',
         '',
-        'Vous avez une grande leçon à partager ? Essayez de construire un niveau avec `build level` ou essayez le niveau d\'un ami avec `import level`',
+        "Vous avez une grande leçon à partager ? Essayez de construire un niveau avec `build level` ou essayez le niveau d'un ami avec `import level`",
         '',
         'Pour voir la gamme complète des commandes, tapez `show commands`. Il y a quelques perles telles que `undo` et `reset`',
         '',
-        'Mais tout de suite commencez sur les `levels`…'
-      ]
-    }
+        'Mais tout de suite commencez sur les `levels`…',
+      ],
+    },
   }],
-  'ru_RU': [{
+  ru_RU: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -618,9 +618,9 @@ exports.dialog = {
         '',
         'Достало это сообщение? Добавь `?NODEMO` к адресу и навсегда забудь о нём, ниже ссылка для удобства:',
         '',
-        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)'
-      ]
-    }
+        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -636,9 +636,9 @@ exports.dialog = {
         ' * reset',
         ' * revert',
         ' * rebase',
-        ' * merge'
-      ]
-    }
+        ' * merge',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -651,11 +651,11 @@ exports.dialog = {
         '',
         'Команда `show commands` покажет все доступные инструкции. Там есть очень полезные, например `undo` и `reset`',
         '',
-        'А пока просто начни игру при помощи `levels`...'
-      ]
-    }
+        'А пока просто начни игру при помощи `levels`...',
+      ],
+    },
   }],
-  'uk': [{
+  uk: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -673,11 +673,11 @@ exports.dialog = {
         '',
         'P.S. Хочеш перейти одразу до пісочниці наступного разу?',
         'Спробуй ',
-        '[це спеціальне посилання.](https://pcottle.github.io/learnGitBranching/?NODEMO)'
-      ]
-    }
+        '[це спеціальне посилання.](https://pcottle.github.io/learnGitBranching/?NODEMO)',
+      ],
+    },
   }],
-  'vi': [{
+  vi: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -695,11 +695,11 @@ exports.dialog = {
         '',
         'Ghi chú: Nếu muốn trực tiếp vào hộp cát ở lần sau?',
         'Hãy dùng',
-        '[đường link đặc biệt này của chúng tôi](https://pcottle.github.io/learnGitBranching/?NODEMO)'
-      ]
-    }
+        '[đường link đặc biệt này của chúng tôi](https://pcottle.github.io/learnGitBranching/?NODEMO)',
+      ],
+    },
   }],
-  'sl_SI': [{
+  sl_SI: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -718,11 +718,11 @@ exports.dialog = {
         '',
         'PS: Bi šel rad naslednjič naravnost v peskovnik?',
         'Poizkusi s',
-        '[to posebno povezavo](https://pcottle.github.io/learnGitBranching/?NODEMO)'
-      ]
-    }
+        '[to posebno povezavo](https://pcottle.github.io/learnGitBranching/?NODEMO)',
+      ],
+    },
   }],
-  'pl': [{
+  pl: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -744,9 +744,9 @@ exports.dialog = {
         '',
         'Masz dość tego okna? Dodaj `?NODEMO` do adresu URL, aby się go pozbyć, w ten sposób:',
         '',
-        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)'
-      ]
-    }
+        '[https://pcottle.github.io/learnGitBranching/?NODEMO](?NODEMO)',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -762,9 +762,9 @@ exports.dialog = {
         ' * reset',
         ' * revert',
         ' * rebase',
-        ' * merge'
-      ]
-    }
+        ' * merge',
+      ],
+    },
   }, {
     type: 'ModalAlert',
     options: {
@@ -777,11 +777,11 @@ exports.dialog = {
         '',
         'Aby zobaczyć wszystkie polecenia, wpisz `show commands`. Pod spodem są "małe skarby" jak `undo`(cofnij) i `reset`',
         '',
-        'Na razie zacznijmy od wpisania `levels`...'
-      ]
-    }
+        'Na razie zacznijmy od wpisania `levels`...',
+      ],
+    },
   }],
-  'ta_IN': [{
+  ta_IN: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -809,8 +809,8 @@ exports.dialog = {
         'இந்த இரண்டு பெயர்களும் ஒன்றுக்கொன்று மாற்றுப்பெயர்களாகக் கருதப்படும். ',
         'இந்த மாற்றத்தை அனைத்து நிலை உள்ளடக்கங்களிலும் புதுப்பிக்க நாங்கள் சிறந்த முயற்சியை ',
         'மேற்கொண்டோம், ஆயினும் ஏதேனும் விடுபட்டி இருந்தால் PR உருவாக்கி உதவுங்கள்.',
-        'ஒருபக்கச்சார்பான சொற்களிலிருந்து விலகிச் செல்ல உதவியதற்கு நன்றி.'
-      ]
-    }
+        'ஒருபக்கச்சார்பான சொற்களிலிருந்து விலகிச் செல்ல உதவியதற்கு நன்றி.',
+      ],
+    },
   }],
 };

@@ -1,16 +1,16 @@
-var { join } = require('path');
-var { readFileSync } = require('fs');
+const { join } = require('path');
+const { readFileSync } = require('fs');
 
-var util = require('../util');
-var { strings } = require('../intl/strings');
+const util = require('../util');
+const { strings } = require('./strings');
 
-var easyRegex = /intl\.str\(\s*'([a-zA-Z\-]+)'/g;
+const easyRegex = /intl\.str\(\s*'([A-Za-z\-]+)'/g;
 
-var allKetSet = new Set(Object.keys(strings));
+const allKetSet = new Set(Object.keys(strings));
 allKetSet.delete('error-untranslated'); // used in ./index.js
 
-var goodKeySet = new Set();
-var validateKey = function(key) {
+const goodKeySet = new Set();
+const validateKey = function (key) {
   if (!strings[key]) {
     console.log('NO KEY for: "', key, '"');
   } else {
@@ -20,14 +20,14 @@ var validateKey = function(key) {
 };
 
 if (!util.isBrowser()) {
-  util.readDirDeep(join(__dirname, '../../')).forEach(function(path) {
-    var content = readFileSync(path);
+  for (const path of util.readDirDeep(join(__dirname, '../../'))) {
+    const content = readFileSync(path);
     var match;
     while (match = easyRegex.exec(content)) {
       validateKey(match[1]);
     }
-  });
-  console.log(goodKeySet.size, ' good keys found!');
-  console.log(allKetSet.size, ' keys did not use!');
+  }
+  console.log(goodKeySet.size, 'good keys found!');
+  console.log(allKetSet.size, 'keys did not use!');
   console.log(allKetSet);
 }

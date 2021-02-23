@@ -1,0 +1,20 @@
+{
+  "env": {
+    "browser": true,
+    "jquery": true
+  },
+  "extends": [
+    "plugin:unicorn/recommended",
+    "airbnb"
+  ],
+  "rules": {
+    "prefer-spread": "off",
+    "global-require": "off",
+    "no-underscore-dangle": "off",
+    "unicorn/prefer-optional-catch-binding": "off",
+    "unicorn/no-null": "off",
+    "unicorn/no-array-for-each": "off",
+    "unicorn/filename-case": "off",
+    "unicorn/prevent-abbreviations": "off"
+  }
+}

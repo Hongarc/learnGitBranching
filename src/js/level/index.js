@@ -1,48 +1,47 @@
-var Q = require('q');
-var React = require('react');
-var ReactDOM = require('react-dom');
+const Q = require('q');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
-var util = require('../util');
-var Main = require('../app');
-var intl = require('../intl');
-var log = require('../log');
+const util = require('../util');
+const Main = require('../app');
+const intl = require('../intl');
+const log = require('../log');
 
-var Errors = require('../util/errors');
-var Sandbox = require('../sandbox/').Sandbox;
-var GlobalStateActions = require('../actions/GlobalStateActions');
-var GlobalStateStore = require('../stores/GlobalStateStore');
-var LevelActions = require('../actions/LevelActions');
-var LevelStore = require('../stores/LevelStore');
-var Visualization = require('../visuals/visualization').Visualization;
-var DisabledMap = require('../level/disabledMap').DisabledMap;
-var GitShim = require('../git/gitShim').GitShim;
-var Commands = require('../commands');
+const Errors = require('../util/errors');
+const { Sandbox } = require('../sandbox');
+const GlobalStateActions = require('../actions/GlobalStateActions');
+const GlobalStateStore = require('../stores/GlobalStateStore');
+const LevelActions = require('../actions/LevelActions');
+const LevelStore = require('../stores/LevelStore');
+const { Visualization } = require('../visuals/visualization');
+const { DisabledMap } = require('./disabledMap');
+const { GitShim } = require('../git/gitShim');
+const Commands = require('../commands');
 
-var MultiView = require('../views/multiView').MultiView;
-var CanvasTerminalHolder = require('../views').CanvasTerminalHolder;
-var ConfirmCancelTerminal = require('../views').ConfirmCancelTerminal;
-var NextLevelConfirm = require('../views').NextLevelConfirm;
-var LevelToolbarView = require('../react_views/LevelToolbarView.jsx');
+const { MultiView } = require('../views/multiView');
+const { CanvasTerminalHolder } = require('../views');
+const { ConfirmCancelTerminal } = require('../views');
+const { NextLevelConfirm } = require('../views');
+const LevelToolbarView = require('../react_views/LevelToolbarView.jsx');
 
-var TreeCompare = require('../graph/treeCompare');
+const TreeCompare = require('../graph/treeCompare');
 
-var regexMap = {
+const regexMap = {
   'help level': /^help level$/,
   'start dialog': /^start dialog$/,
   'show goal': /^(show goal|goal|help goal)$/,
   'hide goal': /^hide goal$/,
   'show solution': /^show solution($|\s)/,
-  'objective': /^(objective|assignment)$/
+  objective: /^(objective|assignment)$/,
 };
 
-var parse = util.genParseCommand(regexMap, 'processLevelCommand');
+const parse = util.genParseCommand(regexMap, 'processLevelCommand');
 
-var Level = Sandbox.extend({
-  initialize: function(options) {
-    options = options || {};
-    options.level = options.level || {};
+const Level = Sandbox.extend({
+  initialize(options = {}) {
+    const level = options.level || {};
 
-    this.level = options.level;
+    this.level = level;
 
     this.gitCommandsIssued = [];
     this.solved = false;
@@ -54,129 +53,126 @@ var Level = Sandbox.extend({
     this.on('resizeCanvas', this.resizeGoal);
     this.isGoalExpanded = false;
 
-    Level.__super__.initialize.apply(this, [options]);
+    Reflect.apply(Level.__super__.initialize, this, [options]);
     this.startOffCommand();
 
     this.handleOpen(options.deferred);
   },
 
-  getIsGoalExpanded: function() {
+  getIsGoalExpanded() {
     return this.isGoalExpanded;
   },
 
-  handleOpen: function(deferred) {
-    deferred = deferred || Q.defer();
-
+  handleOpen(deferred = Q.defer()) {
     // if there is a multiview in the beginning, open that
     // and let it resolve our deferred
     if (GlobalStateStore.getShouldDisableLevelInstructions()) {
-      setTimeout(function() {
+      setTimeout(() => {
         deferred.resolve();
       }, 100);
       return;
     }
 
     if (this.level.startDialog && !this.testOption('noIntroDialog')) {
-      new MultiView(Object.assign(
-        {},
-        intl.getStartDialog(this.level),
-        { deferred: deferred }
-      ));
+      new MultiView({
+        ...intl.getStartDialog(this.level),
+        deferred,
+      });
       return;
     }
 
     // otherwise, resolve after a 700 second delay to allow
     // for us to animate easily
-    setTimeout(function() {
+    setTimeout(() => {
       deferred.resolve();
     }, this.getAnimationTime() * 1.2);
   },
 
-  objectiveDialog: function(command, deferred, levelObj) {
-    levelObj = (levelObj === undefined) ? this.level : levelObj;
+  objectiveDialog(command, deferred, levelObject) {
+    levelObject = (levelObject === undefined) ? this.level : levelObject;
 
-    if (!levelObj || !levelObj.startDialog) {
+    if (!levelObject || !levelObject.startDialog) {
       command.set('error', new Errors.GitError({
-        msg: intl.str('no-start-dialog')
+        msg: intl.str('no-start-dialog'),
       }));
       deferred.resolve();
       return;
     }
 
-    var dialog = $.extend({}, intl.getStartDialog(levelObj));
+    const dialog = $.extend({}, intl.getStartDialog(levelObject));
     // grab the last slide only
     dialog.childViews = dialog.childViews.slice(-1);
     new MultiView(Object.assign(
       dialog,
-      { deferred: deferred }
+      { deferred },
     ));
 
     // when its closed we are done
-    deferred.promise.then(function() {
+    deferred.promise.then(() => {
       command.set('status', 'finished');
     });
   },
 
-  startDialog: function(command, deferred) {
+  startDialog(command, deferred) {
     if (!this.level.startDialog) {
       command.set('error', new Errors.GitError({
-        msg: intl.str('no-start-dialog')
+        msg: intl.str('no-start-dialog'),
       }));
       deferred.resolve();
       return;
     }
 
     this.handleOpen(deferred);
-    deferred.promise.then(function() {
+    deferred.promise.then(() => {
       command.set('status', 'finished');
     });
   },
 
-  getEnglishName: function() {
+  getEnglishName() {
     return this.level.name.en_US;
   },
 
-  initName: function() {
-    var name = intl.getName(this.level);
+  initName() {
+    const name = intl.getName(this.level);
     this.levelToolbar = React.createElement(
       LevelToolbarView,
       {
-        name: name,
+        name,
         onGoalClick: this.toggleGoal.bind(this),
         onObjectiveClick: this.toggleObjective.bind(this),
-        parent: this
-      }
+        parent: this,
+      },
     );
     ReactDOM.render(
       this.levelToolbar,
-      document.getElementById('levelToolbarMount')
+      document.querySelector('#levelToolbarMount'),
     );
   },
 
-  initGoalData: function(options) {
+  initGoalData(options) {
     if (!this.level.goalTreeString || !this.level.solutionCommand) {
       throw new Error('need goal tree and solution');
     }
   },
 
-  takeControl: function() {
+  takeControl() {
     Main.getEventBaton().stealBaton('processLevelCommand', this.processLevelCommand, this);
 
     Level.__super__.takeControl.apply(this);
   },
 
-  releaseControl: function() {
+  releaseControl() {
     Main.getEventBaton().releaseBaton('processLevelCommand', this.processLevelCommand, this);
 
     Level.__super__.releaseControl.apply(this);
   },
 
-  startOffCommand: function() {
-    var method = this.options.command.get('method');
+  startOffCommand() {
+    const method = this.options.command.get('method');
     if (GlobalStateStore.getShouldDisableLevelInstructions()) {
       Main.getEventBaton().trigger(
         'commandSubmitted',
-        'hint; show goal'
+        'hint; show goal',
       );
       return;
     }
@@ -184,24 +180,24 @@ var Level = Sandbox.extend({
     if (!this.testOption('noStartCommand') && method !== 'importLevelNow') {
       Main.getEventBaton().trigger(
         'commandSubmitted',
-        'hint; delay 2000; show goal'
+        'hint; delay 2000; show goal',
       );
     }
   },
 
-  initVisualization: function(options) {
+  initVisualization(options) {
     this.mainVis = new Visualization({
       el: options.el || this.getDefaultVisEl(),
-      treeString: options.level.startTree
+      treeString: options.level.startTree,
     });
   },
 
-  initGoalVisualization: function() {
-    var onlyMaster = TreeCompare.onlyMasterCompared(this.level);
+  initGoalVisualization() {
+    const onlyMaster = TreeCompare.onlyMasterCompared(this.level);
     // first we make the goal visualization holder
     this.goalCanvasHolder = new CanvasTerminalHolder({
       text: (onlyMaster) ? intl.str('goal-only-main') : undefined,
-      parent: this
+      parent: this,
     });
 
     // then we make a visualization. the "el" here is the element to
@@ -214,30 +210,28 @@ var Level = Sandbox.extend({
       smallCanvas: true,
       isGoalVis: true,
       levelBlob: this.level,
-      noClick: true
+      noClick: true,
     });
 
     // If the goal visualization gets dragged to the right side of the screen, then squeeze the main
     // repo visualization a bit to make room. This way, you could have the goal window hang out on
     // the right side of the screen and still see the repo visualization.
-    this.goalVis.customEvents.on('drag', function(event, ui) {
+    this.goalVis.customEvents.on('drag', (event, ui) => {
       if (ui.position.left > 0.5 * $(window).width()) {
         if (!$('#goalPlaceholder').is(':visible')) {
           $('#goalPlaceholder').show();
           this.mainVis.myResize();
         }
-      } else {
-        if ($('#goalPlaceholder').is(':visible')) {
-          $('#goalPlaceholder').hide();
-          this.mainVis.myResize();
-        }
+      } else if ($('#goalPlaceholder').is(':visible')) {
+        $('#goalPlaceholder').hide();
+        this.mainVis.myResize();
       }
-    }.bind(this));
+    });
 
     return this.goalCanvasHolder;
   },
 
-  minimizeGoal: function (position, size) {
+  minimizeGoal(position, size) {
     this.isGoalExpanded = false;
     this.trigger('goalToggled');
     this.goalVis.hide();
@@ -249,63 +243,63 @@ var Level = Sandbox.extend({
     }
   },
 
-  resizeGoal: function () {
+  resizeGoal() {
     if (!this.goalVis) {
       return;
     }
     this.goalVis.myResize();
   },
 
-  showSolution: function(command, deferred) {
-    var toIssue = this.level.solutionCommand;
-    var issueFunc = function() {
+  showSolution(command, deferred) {
+    let toIssue = this.level.solutionCommand;
+    const issueFunction = function () {
       this.isShowingSolution = true;
       Main.getEventBaton().trigger(
         'commandSubmitted',
-        toIssue
+        toIssue,
       );
       log.showLevelSolution(this.getEnglishName());
     }.bind(this);
 
-    var commandStr = command.get('rawStr');
-    if (!this.testOptionOnString(commandStr, 'noReset')) {
-      toIssue = 'reset --forSolution; ' + toIssue;
+    const commandString = command.get('rawStr');
+    if (!this.testOptionOnString(commandString, 'noReset')) {
+      toIssue = `reset --forSolution; ${toIssue}`;
     }
-    if (this.testOptionOnString(commandStr, 'force')) {
-      issueFunc();
+    if (this.testOptionOnString(commandString, 'force')) {
+      issueFunction();
       command.finishWith(deferred);
       return;
     }
 
     // allow them for force the solution
-    var confirmDefer = Q.defer();
-    var dialog = intl.getDialog(require('../dialogs/confirmShowSolution'))[0];
-    var confirmView = new ConfirmCancelTerminal({
+    const confirmDefer = Q.defer();
+    const dialog = intl.getDialog(require('../dialogs/confirmShowSolution'))[0];
+    const confirmView = new ConfirmCancelTerminal({
       markdowns: dialog.options.markdowns,
-      deferred: confirmDefer
+      deferred: confirmDefer,
     });
 
     confirmDefer.promise
-    .then(issueFunc)
-    .fail(function() {
-      command.setResult("");
-    })
-    .done(function() {
-     // either way we animate, so both options can share this logic
-     setTimeout(function() {
-        command.finishWith(deferred);
-      }, confirmView.getAnimationTime());
-    });
+      .then(issueFunction)
+      .fail(() => {
+        command.setResult('');
+      })
+      .done(() => {
+        // either way we animate, so both options can share this logic
+        setTimeout(() => {
+          command.finishWith(deferred);
+        }, confirmView.getAnimationTime());
+      });
   },
 
-  toggleObjective: function() {
+  toggleObjective() {
     Main.getEventBaton().trigger(
       'commandSubmitted',
-      'objective'
+      'objective',
     );
   },
 
-  toggleGoal: function () {
+  toggleGoal() {
     if (this.goalCanvasHolder && this.goalCanvasHolder.inDom) {
       this.hideGoal();
     } else {
@@ -313,7 +307,7 @@ var Level = Sandbox.extend({
     }
   },
 
-  showGoal: function(command, defer) {
+  showGoal(command, defer) {
     this.isGoalExpanded = true;
     this.trigger('goalToggled');
     this.showSideVis(command, defer, this.goalCanvasHolder, this.initGoalVisualization);
@@ -324,8 +318,8 @@ var Level = Sandbox.extend({
     }
   },
 
-  showSideVis: function(command, defer, canvasHolder, initMethod) {
-    var safeFinish = function() {
+  showSideVis(command, defer, canvasHolder, initMethod) {
+    const safeFinish = function () {
       if (command) { command.finishWith(defer); }
     };
     if (!canvasHolder || !canvasHolder.inDom) {
@@ -336,14 +330,14 @@ var Level = Sandbox.extend({
     setTimeout(safeFinish, canvasHolder.getAnimationTime());
   },
 
-  hideGoal: function(command, defer) {
+  hideGoal(command, defer) {
     this.isGoalExpanded = false;
     this.trigger('goalToggled');
     this.hideSideVis(command, defer, this.goalCanvasHolder);
   },
 
-  hideSideVis: function(command, defer, canvasHolder, vis) {
-    var safeFinish = function() {
+  hideSideVis(command, defer, canvasHolder, vis) {
+    const safeFinish = function () {
       if (command) { command.finishWith(defer); }
     };
 
@@ -355,18 +349,18 @@ var Level = Sandbox.extend({
     }
   },
 
-  initParseWaterfall: function(options) {
-    Level.__super__.initParseWaterfall.apply(this, [options]);
+  initParseWaterfall(options) {
+    Reflect.apply(Level.__super__.initParseWaterfall, this, [options]);
 
     // add our specific functionality
     this.parseWaterfall.addFirst(
       'parseWaterfall',
-      parse
+      parse,
     );
 
     this.parseWaterfall.addFirst(
       'instantWaterfall',
-      this.getInstantCommands()
+      this.getInstantCommands(),
     );
 
     // if we want to disable certain commands...
@@ -375,27 +369,27 @@ var Level = Sandbox.extend({
       this.parseWaterfall.addFirst(
         'instantWaterfall',
         new DisabledMap({
-          disabledMap: options.level.disabledMap
-        }).getInstantCommands()
+          disabledMap: options.level.disabledMap,
+        }).getInstantCommands(),
       );
     }
   },
 
-  initGitShim: function(options) {
+  initGitShim(options) {
     // ok we definitely want a shim here
     this.gitShim = new GitShim({
       beforeCB: this.beforeCommandCB.bind(this),
       afterCB: this.afterCommandCB.bind(this),
-      afterDeferHandler: this.afterCommandDefer.bind(this)
+      afterDeferHandler: this.afterCommandDefer.bind(this),
     });
   },
 
-  undo: function() {
+  undo() {
     this.gitCommandsIssued.pop();
-    Level.__super__.undo.apply(this, arguments);
+    Reflect.apply(Level.__super__.undo, this, arguments);
   },
 
-  beforeCommandCB: function(command) {
+  beforeCommandCB(command) {
     // Alright we actually no-op this in the level subclass
     // so we can tell if the command counted or not... kinda :P
     // We have to save the state in this method since the git
@@ -403,7 +397,7 @@ var Level = Sandbox.extend({
     this._treeBeforeCommand = this.mainVis.gitEngine.printTree();
   },
 
-  afterCommandCB: function(command) {
+  afterCommandCB(command) {
     if (this.doesCommandCountTowardsTotal(command)) {
       // Count it as a command AND...
       this.gitCommandsIssued.push(command.get('rawStr'));
@@ -414,31 +408,31 @@ var Level = Sandbox.extend({
     }
   },
 
-  doesCommandCountTowardsTotal: function(command) {
+  doesCommandCountTowardsTotal(command) {
     if (command.get('error')) {
       // don't count errors towards our count
       return false;
     }
 
-    var matched = false;
-    var commandsThatCount = Commands.commands.getCommandsThatCount();
-    Object.values(commandsThatCount).forEach(function(map) {
-      Object.values(map).forEach(function(regex) {
+    let matched = false;
+    const commandsThatCount = Commands.commands.getCommandsThatCount();
+    for (const map of Object.values(commandsThatCount)) {
+      for (const regex of Object.values(map)) {
         matched = matched || regex.test(command.get('rawStr'));
-      });
-    });
+      }
+    }
     return matched;
   },
 
-  afterCommandDefer: function(defer, command) {
+  afterCommandDefer(defer, command) {
     if (this.solved) {
       command.addWarning(intl.str('already-solved'));
       defer.resolve();
       return;
     }
 
-    var current = this.mainVis.gitEngine.printTree();
-    var solved = TreeCompare.dispatchFromLevel(this.level, current);
+    const current = this.mainVis.gitEngine.printTree();
+    const solved = TreeCompare.dispatchFromLevel(this.level, current);
 
     if (!solved) {
       defer.resolve();
@@ -449,21 +443,21 @@ var Level = Sandbox.extend({
     this.levelSolved(defer);
   },
 
-  getNumSolutionCommands: function() {
+  getNumSolutionCommands() {
     // strip semicolons in bad places
-    var toAnalyze = this.level.solutionCommand.replace(/^;|;$/g, '');
+    const toAnalyze = this.level.solutionCommand.replace(/^;|;$/g, '');
     return toAnalyze.split(';').length;
   },
 
-  testOption: function(option) {
-    return this.options.command && new RegExp('--' + option).test(this.options.command.get('rawStr'));
+  testOption(option) {
+    return this.options.command && new RegExp(`--${option}`).test(this.options.command.get('rawStr'));
   },
 
-  testOptionOnString: function(str, option) {
-    return str && new RegExp('--' + option).test(str);
+  testOptionOnString(string, option) {
+    return string && new RegExp(`--${option}`).test(string);
   },
 
-  levelSolved: function(defer) {
+  levelSolved(defer) {
     this.solved = true;
     if (!this.isShowingSolution) {
       LevelActions.setLevelSolved(this.level.id);
@@ -472,13 +466,13 @@ var Level = Sandbox.extend({
 
     this.hideGoal();
 
-    var nextLevel = LevelStore.getNextLevel(this.level.id);
-    var numCommands = this.gitCommandsIssued.length;
-    var best = this.getNumSolutionCommands();
+    const nextLevel = LevelStore.getNextLevel(this.level.id);
+    const numberCommands = this.gitCommandsIssued.length;
+    const best = this.getNumSolutionCommands();
 
-    var skipFinishDialog = this.testOption('noFinishDialog') ||
-      this.wasResetAfterSolved;
-    var skipFinishAnimation = this.wasResetAfterSolved;
+    const skipFinishDialog = this.testOption('noFinishDialog')
+      || this.wasResetAfterSolved;
+    const skipFinishAnimation = this.wasResetAfterSolved;
 
     if (!skipFinishAnimation) {
       GlobalStateActions.levelSolved();
@@ -487,7 +481,7 @@ var Level = Sandbox.extend({
     /**
      * Speed up the animation each time we see it.
      */
-    var speed = 1.0;
+    let speed = 1;
     switch (GlobalStateStore.getNumLevelsSolved()) {
       case 2:
         speed = 1.5;
@@ -506,33 +500,33 @@ var Level = Sandbox.extend({
       speed = 2.5;
     }
 
-    var finishAnimationChain = null;
+    let finishAnimationChain = null;
     if (skipFinishAnimation) {
-      var deferred = Q.defer();
+      const deferred = Q.defer();
       deferred.resolve();
       finishAnimationChain = deferred.promise;
       Main.getEventBaton().trigger(
         'commandSubmitted',
-        'echo "level solved! type in \'levels\' to access the next level"'
+        "echo \"level solved! type in 'levels' to access the next level\"",
       );
     } else {
       GlobalStateActions.changeIsAnimating(true);
       finishAnimationChain = this.mainVis.gitVisuals.finishAnimation(speed);
       if (this.mainVis.originVis) {
         finishAnimationChain = finishAnimationChain.then(
-          this.mainVis.originVis.gitVisuals.finishAnimation(speed)
+          this.mainVis.originVis.gitVisuals.finishAnimation(speed),
         );
       }
     }
 
     if (!skipFinishDialog) {
-      finishAnimationChain = finishAnimationChain.then(function() {
+      finishAnimationChain = finishAnimationChain.then(() => {
         // we want to ask if they will move onto the next level
         // while giving them their results...
-        var nextDialog = new NextLevelConfirm({
-          nextLevel: nextLevel,
-          numCommands: numCommands,
-          best: best
+        const nextDialog = new NextLevelConfirm({
+          nextLevel,
+          numCommands: numberCommands,
+          best,
         });
 
         return nextDialog.getPromise();
@@ -540,27 +534,27 @@ var Level = Sandbox.extend({
     }
 
     finishAnimationChain
-    .then(function() {
-      if (!skipFinishDialog && nextLevel) {
-        log.choseNextLevel(nextLevel.id);
-        Main.getEventBaton().trigger(
-          'commandSubmitted',
-          'level ' + nextLevel.id
-        );
-      }
-    })
-    .fail(function() {
+      .then(() => {
+        if (!skipFinishDialog && nextLevel) {
+          log.choseNextLevel(nextLevel.id);
+          Main.getEventBaton().trigger(
+            'commandSubmitted',
+            `level ${nextLevel.id}`,
+          );
+        }
+      })
+      .fail(() => {
       // nothing to do, we will just close
-    })
-    .done(function() {
-      GlobalStateActions.changeIsAnimating(false);
-      defer.resolve();
-    });
+      })
+      .done(() => {
+        GlobalStateActions.changeIsAnimating(false);
+        defer.resolve();
+      });
   },
 
-  die: function() {
+  die() {
     ReactDOM.unmountComponentAtNode(
-      document.getElementById('levelToolbarMount')
+      document.querySelector('#levelToolbarMount'),
     );
 
     this.hideGoal();
@@ -575,74 +569,74 @@ var Level = Sandbox.extend({
     delete this.goalCanvasHolder;
   },
 
-  getInstantCommands: function() {
-    var getHint = function() {
-      var hint = intl.getHint(this.level);
-      if (!hint || !hint.length) {
+  getInstantCommands() {
+    const getHint = function () {
+      const hint = intl.getHint(this.level);
+      if (!hint || hint.length === 0) {
         return intl.str('no-hint');
       }
       return hint;
     }.bind(this);
 
     return [
-      [/^help$|^\?$/, function() {
+      [/^help$|^\?$/, function () {
         throw new Errors.CommandResult({
-          msg: intl.str('help-vague-level')
+          msg: intl.str('help-vague-level'),
         });
       }],
-      [/^hint$/, function() {
+      [/^hint$/, function () {
         throw new Errors.CommandResult({
-          msg: getHint()
+          msg: getHint(),
         });
-      }]
+      }],
     ];
   },
 
-  reset: function(command, deferred) {
+  reset(command, deferred) {
     this.gitCommandsIssued = [];
 
-    var commandStr = (command) ? command.get('rawStr') : '';
-    if (!this.testOptionOnString(commandStr, 'forSolution')) {
+    const commandString = (command) ? command.get('rawStr') : '';
+    if (!this.testOptionOnString(commandString, 'forSolution')) {
       this.isShowingSolution = false;
     }
     if (this.solved) {
       this.wasResetAfterSolved = true;
     }
     this.solved = false;
-    Level.__super__.reset.apply(this, arguments);
+    Reflect.apply(Level.__super__.reset, this, arguments);
   },
 
-  buildLevel: function(command, deferred) {
+  buildLevel(command, deferred) {
     this.exitLevel();
-    setTimeout(function() {
+    setTimeout(() => {
       Main.getSandbox().buildLevel(command, deferred);
     }, this.getAnimationTime() * 1.5);
   },
 
-  importLevel: function(command, deferred) {
+  importLevel(command, deferred) {
     this.exitLevel();
-    setTimeout(function() {
+    setTimeout(() => {
       Main.getSandbox().importLevel(command, deferred);
     }, this.getAnimationTime() * 1.5);
   },
 
-  startLevel: function(command, deferred) {
+  startLevel(command, deferred) {
     this.exitLevel();
 
-    setTimeout(function() {
+    setTimeout(() => {
       Main.getSandbox().startLevel(command, deferred);
     }, this.getAnimationTime() * 1.5);
     // wow! that was simple :D
   },
 
-  exitLevel: function(command, deferred) {
+  exitLevel(command, deferred) {
     this.die();
 
     if (!command || !deferred) {
       return;
     }
 
-    setTimeout(function() {
+    setTimeout(() => {
       command.finishWith(deferred);
     }, this.getAnimationTime());
 
@@ -650,22 +644,22 @@ var Level = Sandbox.extend({
     Main.getEventBaton().trigger('levelExited');
   },
 
-  processLevelCommand: function(command, defer) {
-    var methodMap = {
+  processLevelCommand(command, defer) {
+    const methodMap = {
       'show goal': this.showGoal,
       'hide goal': this.hideGoal,
       'show solution': this.showSolution,
       'start dialog': this.startDialog,
       'help level': this.startDialog,
-      'objective': this.objectiveDialog
+      objective: this.objectiveDialog,
     };
-    var method = methodMap[command.get('method')];
+    const method = methodMap[command.get('method')];
     if (!method) {
-      throw new Error('woah we don\'t support that method yet', method);
+      throw new Error("woah we don't support that method yet", method);
     }
 
-    method.apply(this, [command, defer]);
-  }
+    Reflect.apply(method, this, [command, defer]);
+  },
 });
 
 exports.Level = Level;

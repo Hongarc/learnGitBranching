@@ -1,24 +1,24 @@
-var GitCommands = require('../git/commands');
-var Commands = require('../commands');
-var SandboxCommands = require('../sandbox/commands');
+const GitCommands = require('../git/commands');
+const Commands = require('../commands');
+const SandboxCommands = require('../sandbox/commands');
 
 // more or less a static class
-var ParseWaterfall = function(options) {
+const ParseWaterfall = function (options) {
   options = options || {};
   this.options = options;
   this.shortcutWaterfall = options.shortcutWaterfall || [
-    Commands.commands.getShortcutMap()
+    Commands.commands.getShortcutMap(),
   ];
 
   this.instantWaterfall = options.instantWaterfall || [
     GitCommands.instantCommands,
-    SandboxCommands.instantCommands
+    SandboxCommands.instantCommands,
   ];
 
   // defer the parse waterfall until later...
 };
 
-ParseWaterfall.prototype.initParseWaterfall = function() {
+ParseWaterfall.prototype.initParseWaterfall = function () {
   // check for node when testing
   if (!require('../util').isBrowser()) {
     this.parseWaterfall = [Commands.parse];
@@ -31,86 +31,86 @@ ParseWaterfall.prototype.initParseWaterfall = function() {
     Commands.parse,
     SandboxCommands.parse,
     SandboxCommands.getOptimisticLevelParse(),
-    SandboxCommands.getOptimisticLevelBuilderParse()
+    SandboxCommands.getOptimisticLevelBuilderParse(),
   ];
 };
 
-ParseWaterfall.prototype.clone = function() {
+ParseWaterfall.prototype.clone = function () {
   return new ParseWaterfall({
     shortcutWaterfall: this.shortcutWaterfall.slice(),
     instantWaterfall: this.instantWaterfall.slice(),
-    parseWaterfall: this.parseWaterfall.slice()
+    parseWaterfall: this.parseWaterfall.slice(),
   });
 };
 
-ParseWaterfall.prototype.getWaterfallMap = function() {
+ParseWaterfall.prototype.getWaterfallMap = function () {
   if (!this.parseWaterfall) {
     this.initParseWaterfall();
   }
   return {
     shortcutWaterfall: this.shortcutWaterfall,
     instantWaterfall: this.instantWaterfall,
-    parseWaterfall: this.parseWaterfall
+    parseWaterfall: this.parseWaterfall,
   };
 };
 
-ParseWaterfall.prototype.addFirst = function(which, value) {
+ParseWaterfall.prototype.addFirst = function (which, value) {
   if (!which || !value) {
     throw new Error('need to know which!!!');
   }
   this.getWaterfallMap()[which].unshift(value);
 };
 
-ParseWaterfall.prototype.addLast = function(which, value) {
+ParseWaterfall.prototype.addLast = function (which, value) {
   this.getWaterfallMap()[which].push(value);
 };
 
-ParseWaterfall.prototype.expandAllShortcuts = function(commandStr) {
-  this.shortcutWaterfall.forEach(function(shortcutMap) {
-    commandStr = this.expandShortcut(commandStr, shortcutMap);
+ParseWaterfall.prototype.expandAllShortcuts = function (commandString) {
+  this.shortcutWaterfall.forEach(function (shortcutMap) {
+    commandString = this.expandShortcut(commandString, shortcutMap);
   }, this);
-  return commandStr;
+  return commandString;
 };
 
-ParseWaterfall.prototype.expandShortcut = function(commandStr, shortcutMap) {
-  Object.keys(shortcutMap).forEach(function(vcs) {
-    var map = shortcutMap[vcs];
-    Object.keys(map).forEach(function(method) {
-      var regex = map[method];
-      var results = regex.exec(commandStr);
+ParseWaterfall.prototype.expandShortcut = function (commandString, shortcutMap) {
+  for (const vcs of Object.keys(shortcutMap)) {
+    const map = shortcutMap[vcs];
+    for (const method of Object.keys(map)) {
+      const regex = map[method];
+      const results = regex.exec(commandString);
       if (results) {
-        commandStr = vcs + ' ' + method + ' ' + commandStr.slice(results[0].length);
+        commandString = `${vcs} ${method} ${commandString.slice(results[0].length)}`;
       }
-    });
-  });
-  return commandStr;
+    }
+  }
+  return commandString;
 };
 
-ParseWaterfall.prototype.processAllInstants = function(commandStr) {
-  this.instantWaterfall.forEach(function(instantCommands) {
-    this.processInstant(commandStr, instantCommands);
+ParseWaterfall.prototype.processAllInstants = function (commandString) {
+  this.instantWaterfall.forEach(function (instantCommands) {
+    this.processInstant(commandString, instantCommands);
   }, this);
 };
 
-ParseWaterfall.prototype.processInstant = function(commandStr, instantCommands) {
-  instantCommands.forEach(function(tuple) {
-    var regex = tuple[0];
-    var results = regex.exec(commandStr);
+ParseWaterfall.prototype.processInstant = function (commandString, instantCommands) {
+  for (const tuple of instantCommands) {
+    const regex = tuple[0];
+    const results = regex.exec(commandString);
     if (results) {
       // this will throw a result because it's an instant
       tuple[1](results);
     }
-  });
+  }
 };
 
-ParseWaterfall.prototype.parseAll = function(commandStr) {
+ParseWaterfall.prototype.parseAll = function (commandString) {
   if (!this.parseWaterfall) {
     this.initParseWaterfall();
   }
 
-  var toReturn = false;
-  this.parseWaterfall.forEach(function(parseFunc) {
-    var results = parseFunc(commandStr);
+  let toReturn = false;
+  this.parseWaterfall.forEach((parseFunction) => {
+    const results = parseFunction(commandString);
     if (results) {
       toReturn = results;
     }

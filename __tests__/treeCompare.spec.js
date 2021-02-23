@@ -12,7 +12,7 @@ var testMethod = function(compareMethod, goalTreeString, cases, options) {
     cases[goalTreeString] = true;
   }
 
-  Object.keys(cases).forEach(function(actualTree) {
+  Object.keys(cases).forEach((actualTree) => {
     var value = cases[actualTree];
     var isEqual = TreeCompare.dispatch(compareMethod, goalTreeString, actualTree);
     if (isEqual !== value) {
@@ -21,7 +21,7 @@ var testMethod = function(compareMethod, goalTreeString, cases, options) {
       console.log('for this value', value);
     }
     expect(isEqual).toBe(value);
-  }.bind(this));
+  });
 };
 
 describe('Tree Compare', function() {

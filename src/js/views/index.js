@@ -1,95 +1,95 @@
-var _ = require('underscore');
-var Q = require('q');
-var Backbone = require('backbone');
-var marked = require('marked');
+const _ = require('underscore');
+const Q = require('q');
+const Backbone = require('backbone');
+const marked = require('marked');
 
-var Main = require('../app');
-var intl = require('../intl');
-var log = require('../log');
-var Constants = require('../util/constants');
-var KeyboardListener = require('../util/keyboard').KeyboardListener;
-var debounce = require('../util/debounce');
-var throttle = require('../util/throttle');
+const Main = require('../app');
+const intl = require('../intl');
+const log = require('../log');
+const Constants = require('../util/constants');
+const { KeyboardListener } = require('../util/keyboard');
+const debounce = require('../util/debounce');
+const throttle = require('../util/throttle');
 
-var BaseView = Backbone.View.extend({
-  getDestination: function() {
+const BaseView = Backbone.View.extend({
+  getDestination() {
     return this.destination || this.container.getInsideElement();
   },
 
-  tearDown: function() {
+  tearDown() {
     this.$el.remove();
     if (this.container) {
       this.container.tearDown();
     }
   },
 
-  renderAgain: function(HTML) {
+  renderAgain(HTML) {
     // flexibility
     HTML = HTML || this.template(this.JSON);
     this.$el.html(HTML);
   },
 
-  render: function(HTML) {
+  render(HTML) {
     this.renderAgain(HTML);
-    var destination = this.getDestination();
+    const destination = this.getDestination();
     $(destination).append(this.el);
-  }
+  },
 });
 
-var ResolveRejectBase = BaseView.extend({
-  resolve: function() {
+const ResolveRejectBase = BaseView.extend({
+  resolve() {
     this.deferred.resolve();
   },
 
-  reject: function() {
+  reject() {
     this.deferred.reject();
-  }
+  },
 });
 
-var PositiveNegativeBase = BaseView.extend({
-  positive: function() {
+const PositiveNegativeBase = BaseView.extend({
+  positive() {
     this.navEvents.trigger('positive');
   },
 
-  exit: function() {
+  exit() {
     this.navEvents.trigger('exit');
   },
 
-  negative: function() {
+  negative() {
     this.navEvents.trigger('negative');
-  }
+  },
 });
 
-var ContainedBase = BaseView.extend({
-  getAnimationTime: function() { return 700; },
+const ContainedBase = BaseView.extend({
+  getAnimationTime() { return 700; },
 
-  show: function() {
+  show() {
     this.container.show();
   },
 
-  hide: function() {
+  hide() {
     this.container.hide();
   },
 
-  die: function() {
+  die() {
     this.hide();
-    setTimeout(function() {
+    setTimeout(() => {
       this.tearDown();
-    }.bind(this), this.getAnimationTime() * 1.1);
-  }
+    }, this.getAnimationTime() * 1.1);
+  },
 });
 
-var GeneralButton = ContainedBase.extend({
+const GeneralButton = ContainedBase.extend({
   tagName: 'a',
   className: 'generalButton uiButton',
   template: _.template($('#general-button').html()),
   events: {
-    'click': 'click'
+    click: 'click',
   },
 
-  initialize: function(options) {
+  initialize(options) {
     options = options || {};
-    this.navEvents = options.navEvents || Object.assign({}, Backbone.Events);
+    this.navEvents = options.navEvents || ({ ...Backbone.Events });
     this.destination = options.destination;
     if (!this.destination) {
       this.container = new ModalTerminal();
@@ -97,7 +97,7 @@ var GeneralButton = ContainedBase.extend({
 
     this.JSON = {
       buttonText: options.buttonText || 'General Button',
-      wantsWrapper: (options.wantsWrapper !== undefined) ? options.wantsWrapper : true
+      wantsWrapper: (options.wantsWrapper !== undefined) ? options.wantsWrapper : true,
     };
 
     this.render();
@@ -107,31 +107,31 @@ var GeneralButton = ContainedBase.extend({
     }
   },
 
-  click: function() {
+  click() {
     if (!this.clickFunc) {
       this.clickFunc = throttle(
         this.sendClick.bind(this),
-        500
+        500,
       );
     }
     this.clickFunc();
   },
 
-  sendClick: function() {
+  sendClick: function () {
     this.navEvents.trigger('click');
-  }.bind(this)
+  }.bind(this),
 });
 
-var ConfirmCancelView = ResolveRejectBase.extend({
+const ConfirmCancelView = ResolveRejectBase.extend({
   tagName: 'div',
   className: 'confirmCancelView box horizontal justify',
   template: _.template($('#confirm-cancel-template').html()),
   events: {
     'click .confirmButton': 'resolve',
-    'click .cancelButton': 'reject'
+    'click .cancelButton': 'reject',
   },
 
-  initialize: function(options) {
+  initialize(options) {
     if (!options.destination) {
       throw new Error('needmore');
     }
@@ -140,11 +140,11 @@ var ConfirmCancelView = ResolveRejectBase.extend({
     this.deferred = options.deferred || Q.defer();
     this.JSON = {
       confirm: options.confirm || intl.str('confirm-button'),
-      cancel: options.cancel || intl.str('cancel-button')
+      cancel: options.cancel || intl.str('cancel-button'),
     };
 
     this.render();
-  }
+  },
 });
 
 var LeftRightView = PositiveNegativeBase.extend({
@@ -152,7 +152,7 @@ var LeftRightView = PositiveNegativeBase.extend({
   className: 'leftRightView box horizontal center',
   template: _.template($('#left-right-template').html()),
 
-  initialize: function(options) {
+  initialize(options) {
     if (!options.destination || !options.events) {
       throw new Error('needmore');
     }
@@ -163,11 +163,11 @@ var LeftRightView = PositiveNegativeBase.extend({
     // events system to add support for git demonstration view taking control of the
     // click events
     this.pipeEvents = options.events;
-    this.navEvents = Object.assign({}, Backbone.Events);
+    this.navEvents = { ...Backbone.Events };
 
     this.JSON = {
       showLeft: (options.showLeft === undefined) ? true : options.showLeft,
-      lastNav: (options.lastNav === undefined) ? false : options.lastNav
+      lastNav: (options.lastNav === undefined) ? false : options.lastNav,
     };
 
     this.render();
@@ -178,43 +178,43 @@ var LeftRightView = PositiveNegativeBase.extend({
     this.$('div.exit').click(this.exit.bind(this));
   },
 
-  exit: function() {
+  exit() {
     this.pipeEvents.trigger('exit');
     LeftRightView.__super__.exit.apply(this);
   },
 
-  positive: function() {
+  positive() {
     this.pipeEvents.trigger('positive');
     LeftRightView.__super__.positive.apply(this);
   },
 
-  negative: function() {
+  negative() {
     this.pipeEvents.trigger('negative');
     LeftRightView.__super__.negative.apply(this);
-  }
+  },
 
 });
 
-var ModalView = Backbone.View.extend({
+const ModalView = Backbone.View.extend({
   tagName: 'div',
   className: 'modalView box horizontal center transitionOpacityLinear',
   template: _.template($('#modal-view-template').html()),
 
-  getAnimationTime: function() { return 700; },
+  getAnimationTime() { return 700; },
 
-  initialize: function(options) {
+  initialize(options) {
     this.shown = false;
     this.render();
   },
 
-  render: function() {
+  render() {
     // add ourselves to the DOM
     this.$el.html(this.template({}));
     $('body').append(this.el);
     // this doesn't necessarily show us though...
   },
 
-  stealKeyboard: function() {
+  stealKeyboard() {
     Main.getEventBaton().stealBaton('keydown', this.onKeyDown, this);
     Main.getEventBaton().stealBaton('keyup', this.onKeyUp, this);
     Main.getEventBaton().stealBaton('windowFocus', this.onWindowFocus, this);
@@ -225,7 +225,7 @@ var ModalView = Backbone.View.extend({
     $('#commandTextField').blur();
   },
 
-  releaseKeyboard: function() {
+  releaseKeyboard() {
     Main.getEventBaton().releaseBaton('keydown', this.onKeyDown, this);
     Main.getEventBaton().releaseBaton('keyup', this.onKeyUp, this);
     Main.getEventBaton().releaseBaton('windowFocus', this.onWindowFocus, this);
@@ -234,47 +234,47 @@ var ModalView = Backbone.View.extend({
     Main.getEventBaton().trigger('windowFocus');
   },
 
-  onWindowFocus: function(e) {
-    //console.log('window focus doing nothing', e);
+  onWindowFocus(e) {
+    // console.log('window focus doing nothing', e);
   },
 
-  onDocumentClick: function(e) {
-    //console.log('doc click doing nothing', e);
+  onDocumentClick(e) {
+    // console.log('doc click doing nothing', e);
   },
 
-  onKeyDown: function(e) {
+  onKeyDown(e) {
     e.preventDefault();
   },
 
-  onKeyUp: function(e) {
+  onKeyUp(e) {
     e.preventDefault();
   },
 
-  show: function() {
+  show() {
     this.toggleZ(true);
     // on reflow, change our class to animate. for whatever
     // reason if this is done immediately, chrome might combine
     // the two changes and lose the ability to animate and it looks bad.
-    process.nextTick(function() {
+    process.nextTick(() => {
       this.toggleShow(true);
-    }.bind(this));
+    });
   },
 
-  hide: function() {
+  hide() {
     this.toggleShow(false);
-    setTimeout(function() {
+    setTimeout(() => {
       // if we are still hidden...
       if (!this.shown) {
         this.toggleZ(false);
       }
-    }.bind(this), this.getAnimationTime());
+    }, this.getAnimationTime());
   },
 
-  getInsideElement: function() {
+  getInsideElement() {
     return this.$('.contentHolder');
   },
 
-  toggleShow: function(value) {
+  toggleShow(value) {
     // this prevents releasing keyboard twice
     if (this.shown === value) { return; }
 
@@ -288,14 +288,14 @@ var ModalView = Backbone.View.extend({
     this.$el.toggleClass('show', value);
   },
 
-  toggleZ: function(value) {
+  toggleZ(value) {
     this.$el.toggleClass('inFront', value);
   },
 
-  tearDown: function() {
+  tearDown() {
     this.$el.html('');
     $('body')[0].removeChild(this.el);
-  }
+  },
 });
 
 var ModalTerminal = ContainedBase.extend({
@@ -303,44 +303,44 @@ var ModalTerminal = ContainedBase.extend({
   className: 'modalTerminal box flex1',
   template: _.template($('#terminal-window-template').html()),
   events: {
-    'click div.inside': 'onClick'
+    'click div.inside': 'onClick',
   },
 
-  initialize: function(options) {
+  initialize(options) {
     options = options || {};
-    this.navEvents = options.events || Object.assign({}, Backbone.Events);
+    this.navEvents = options.events || ({ ...Backbone.Events });
 
     this.container = new ModalView();
     this.JSON = {
-      title: options.title
+      title: options.title,
     };
 
     this.render();
   },
 
-  updateTitle: function(/*string*/ title) {
+  updateTitle(/* string */ title) {
     this.$('.modal-title').text(title);
   },
 
-  onClick: function() {
+  onClick() {
     this.navEvents.trigger('click');
   },
 
-  getInsideElement: function() {
+  getInsideElement() {
     return this.$('.inside');
-  }
+  },
 });
 
 var ModalAlert = ContainedBase.extend({
   tagName: 'div',
   template: _.template($('#modal-alert-template').html()),
 
-  initialize: function(options) {
+  initialize(options) {
     this.options = options || {};
     this.JSON = {
       title: options.title || 'Something to say',
       text: options.text || 'Here is a paragraph',
-      markdown: options.markdown
+      markdown: options.markdown,
     };
 
     if (options.markdowns) {
@@ -355,10 +355,10 @@ var ModalAlert = ContainedBase.extend({
     }
   },
 
-  render: function() {
-    var HTML = (this.JSON.markdown) ?
-      marked(this.JSON.markdown) :
-      this.template(this.JSON);
+  render() {
+    let HTML = (this.JSON.markdown)
+      ? marked(this.JSON.markdown)
+      : this.template(this.JSON);
     // one more hack -- allow adding custom random HTML if specified
     if (this.options._dangerouslyInsertHTML) {
       HTML += this.options._dangerouslyInsertHTML;
@@ -366,47 +366,47 @@ var ModalAlert = ContainedBase.extend({
 
     // call to super, not super elegant but better than
     // copy paste code
-    ModalAlert.__super__.render.apply(this, [HTML]);
-  }
+    Reflect.apply(ModalAlert.__super__.render, this, [HTML]);
+  },
 });
 
-var ConfirmCancelTerminal = Backbone.View.extend({
-  initialize: function(options) {
+const ConfirmCancelTerminal = Backbone.View.extend({
+  initialize(options) {
     options = options || {};
 
     this.deferred = options.deferred || Q.defer();
-    this.modalAlert = new ModalAlert(Object.assign(
-      {},
-      { markdown: '#you sure?' },
-      options
-    ));
+    this.modalAlert = new ModalAlert({
 
-    var buttonDefer = Q.defer();
+      markdown: '#you sure?',
+      ...options,
+    });
+
+    const buttonDefer = Q.defer();
     this.buttonDefer = buttonDefer;
     this.confirmCancel = new ConfirmCancelView({
       deferred: buttonDefer,
-      destination: this.modalAlert.getDestination()
+      destination: this.modalAlert.getDestination(),
     });
 
     // whenever they hit a button. make sure
     // we close and pass that to our deferred
     buttonDefer.promise
-    .then(this.deferred.resolve)
-    .fail(this.deferred.reject)
-    .done(function() {
-      this.close();
-    }.bind(this));
+      .then(this.deferred.resolve)
+      .fail(this.deferred.reject)
+      .done(() => {
+        this.close();
+      });
 
     // also setup keyboard
-    this.navEvents = Object.assign({}, Backbone.Events);
+    this.navEvents = { ...Backbone.Events };
     this.navEvents.on('positive', this.positive, this);
     this.navEvents.on('negative', this.negative, this);
     this.keyboardListener = new KeyboardListener({
       events: this.navEvents,
       aliasMap: {
         enter: 'positive',
-        esc: 'negative'
-      }
+        esc: 'negative',
+      },
     });
 
     if (!options.wait) {
@@ -414,159 +414,153 @@ var ConfirmCancelTerminal = Backbone.View.extend({
     }
   },
 
-  positive: function() {
+  positive() {
     this.buttonDefer.resolve();
   },
 
-  negative: function() {
+  negative() {
     this.buttonDefer.reject();
   },
 
-  getAnimationTime: function() { return 700; },
+  getAnimationTime() { return 700; },
 
-  show: function() {
+  show() {
     this.modalAlert.show();
   },
 
-  hide: function() {
+  hide() {
     this.modalAlert.hide();
   },
 
-  getPromise: function() {
+  getPromise() {
     return this.deferred.promise;
   },
 
-  close: function() {
+  close() {
     this.keyboardListener.mute();
     this.modalAlert.die();
-  }
+  },
 });
 
 var NextLevelConfirm = ConfirmCancelTerminal.extend({
-  initialize: function(options) {
+  initialize(options) {
     options = options || {};
-    var nextLevelName = (options.nextLevel) ?
-      intl.getName(options.nextLevel) :
-      '';
+    const nextLevelName = (options.nextLevel)
+      ? intl.getName(options.nextLevel)
+      : '';
 
     // lol hax
-    var markdowns = intl.getDialog(require('../dialogs/nextLevel'))[0].options.markdowns;
-    var markdown = markdowns.join('\n');
+    const { markdowns } = intl.getDialog(require('../dialogs/nextLevel'))[0].options;
+    let markdown = markdowns.join('\n');
     markdown = intl.template(markdown, {
       numCommands: options.numCommands,
-      best: options.best
+      best: options.best,
     });
 
-    if (options.numCommands <= options.best) {
-      markdown = markdown + '\n\n' + intl.str('finish-dialog-win');
-    } else {
-      markdown = markdown + '\n\n' + intl.str('finish-dialog-lose', {best: options.best});
-    }
+    markdown = options.numCommands <= options.best ? `${markdown}\n\n${intl.str('finish-dialog-win')}` : `${markdown}\n\n${intl.str('finish-dialog-lose', { best: options.best })}`;
 
-    markdown = markdown + '\n\n';
-    var extraHTML;
+    markdown += '\n\n';
+    let extraHTML;
     if (options.nextLevel) {
-      markdown = markdown + intl.str('finish-dialog-next', {nextLevel: nextLevelName});
+      markdown += intl.str('finish-dialog-next', { nextLevel: nextLevelName });
     } else {
-      extraHTML = '<p class="catchadream">' + intl.str('finish-dialog-finished') +
-        ' (ﾉ^_^)ﾉ (ﾉ^_^)ﾉ (ﾉ^_^)ﾉ' +
-        '</p>';
+      extraHTML = `<p class="catchadream">${intl.str('finish-dialog-finished')
+      } (ﾉ^_^)ﾉ (ﾉ^_^)ﾉ (ﾉ^_^)ﾉ`
+        + '</p>';
     }
 
-    options = Object.assign(
-      {},
-      options,
-      {
-        markdown: markdown,
-        _dangerouslyInsertHTML: extraHTML
-      }
-    );
+    options = {
 
-    NextLevelConfirm.__super__.initialize.apply(this, [options]);
-  }
+      ...options,
+      markdown,
+      _dangerouslyInsertHTML: extraHTML,
+    };
+
+    Reflect.apply(NextLevelConfirm.__super__.initialize, this, [options]);
+  },
 });
 
-var ViewportAlert = Backbone.View.extend({
-  initialize: function(options) {
+const ViewportAlert = Backbone.View.extend({
+  initialize(options) {
     this.grabBatons();
     this.modalAlert = new ModalAlert({
-      markdowns: this.markdowns
+      markdowns: this.markdowns,
     });
     this.modalAlert.show();
   },
 
-  grabBatons: function() {
+  grabBatons() {
     Main.getEventBaton().stealBaton(this.eventBatonName, this.batonFired, this);
   },
 
-  releaseBatons: function() {
+  releaseBatons() {
     Main.getEventBaton().releaseBaton(this.eventBatonName, this.batonFired, this);
   },
 
-  finish: function() {
+  finish() {
     this.releaseBatons();
     this.modalAlert.die();
-  }
+  },
 });
 
 var WindowSizeAlertWindow = ViewportAlert.extend({
-  initialize: function(options) {
+  initialize(options) {
     this.eventBatonName = 'windowSizeCheck';
     this.markdowns = [
       '## That window size is not supported :-/',
       'Please resize your window back to a supported size',
       '',
-      '(and of course, pull requests to fix this are appreciated :D)'
+      '(and of course, pull requests to fix this are appreciated :D)',
     ];
-    WindowSizeAlertWindow.__super__.initialize.apply(this, [options]);
+    Reflect.apply(WindowSizeAlertWindow.__super__.initialize, this, [options]);
   },
 
-  batonFired: function(size) {
-    if (size.w > Constants.VIEWPORT.minWidth &&
-        size.h > Constants.VIEWPORT.minHeight) {
+  batonFired(size) {
+    if (size.w > Constants.VIEWPORT.minWidth
+        && size.h > Constants.VIEWPORT.minHeight) {
       this.finish();
     }
-  }
+  },
 });
 
 var ZoomAlertWindow = ViewportAlert.extend({
-  initialize: function(options) {
+  initialize(options) {
     if (!options || !options.level) { throw new Error('need level'); }
 
     this.eventBatonName = 'zoomChange';
     this.markdowns = [
-      '## That zoom level of ' + options.level + ' is not supported :-/',
+      `## That zoom level of ${options.level} is not supported :-/`,
       'Please zoom back to a supported zoom level with Ctrl + and Ctrl -',
       '',
-      '(and of course, pull requests to fix this are appreciated :D)'
+      '(and of course, pull requests to fix this are appreciated :D)',
     ];
-    ZoomAlertWindow.__super__.initialize.apply(this, [options]);
+    Reflect.apply(ZoomAlertWindow.__super__.initialize, this, [options]);
   },
 
-  batonFired: function(level) {
-    if (level <= Constants.VIEWPORT.maxZoom &&
-        level >= Constants.VIEWPORT.minZoom) {
+  batonFired(level) {
+    if (level <= Constants.VIEWPORT.maxZoom
+        && level >= Constants.VIEWPORT.minZoom) {
       this.finish();
     }
-  }
+  },
 });
 
-var CanvasTerminalHolder = BaseView.extend({
+const CanvasTerminalHolder = BaseView.extend({
   tagName: 'div',
   className: 'canvasTerminalHolder box flex1',
   template: _.template($('#terminal-window-bare-template').html()),
   events: {
-    'click div.wrapper': 'onClick'
+    'click div.wrapper': 'onClick',
   },
 
-  initialize: function(options) {
+  initialize(options) {
     options = options || {};
     this.parent = options.parent;
     this.minHeight = options.minHeight || 200;
     this.destination = $('body');
     this.JSON = {
       title: options.title || intl.str('goal-to-reach'),
-      text: options.text || intl.str('hide-goal')
+      text: options.text || intl.str('hide-goal'),
     };
 
     this.render();
@@ -578,7 +572,7 @@ var CanvasTerminalHolder = BaseView.extend({
       cursor: 'move',
       handle: '.toolbar',
       containment: '#interfaceWrapper',
-      scroll: false
+      scroll: false,
     });
 
     // If the entire window gets resized such that the terminal is outside the view, then
@@ -590,38 +584,38 @@ var CanvasTerminalHolder = BaseView.extend({
     }
   },
 
-  getAnimationTime: function() { return 700; },
+  getAnimationTime() { return 700; },
 
-  onClick: function() {
+  onClick() {
     this.die();
   },
 
-  die: function() {
+  die() {
     this.minimize();
     this.inDom = false;
 
-    setTimeout(function() {
+    setTimeout(() => {
       this.tearDown();
-    }.bind(this), this.getAnimationTime());
+    }, this.getAnimationTime());
   },
 
-  minimize: function() {
+  minimize() {
     this.parent.trigger('minimizeCanvas', {
       left: this.$terminal.css('left'),
-      top: this.$terminal.css('top')
+      top: this.$terminal.css('top'),
     }, {
       width: this.$terminal.css('width'),
-      height: this.$terminal.css('height')
+      height: this.$terminal.css('height'),
     });
 
     this.$terminal.animate({
       height: '0px',
-      opacity: 0
+      opacity: 0,
     }, this.getAnimationTime());
   },
 
-  restore: function (pos, size) {
-    var self = this;
+  restore(pos, size) {
+    const self = this;
     pos = pos || { top: this.$terminal.css('top'), left: this.$terminal.css('left') };
     size = size || { width: this.$terminal.css('width'), height: this.$terminal.css('height') };
 
@@ -630,32 +624,32 @@ var CanvasTerminalHolder = BaseView.extend({
       left: pos.left,
       width: size.width,
       height: '0px',
-      opacity: '0'
+      opacity: '0',
     });
 
     this.$terminal.animate({
       height: size.height,
-      opacity: 1
-    }, this.getAnimationTime(), function() {
-        self.recalcLayout();
+      opacity: 1,
+    }, this.getAnimationTime(), () => {
+      self.recalcLayout();
     });
   },
 
-  recalcLayout: function () {
+  recalcLayout() {
     // Resize/reposition self based on the size of the browser window.
 
-    var parent = this.parent,
-        leftOffset = 0,
-        topOffset = 0,
-        heightOffset = 0,
-        width = this.$terminal.outerWidth(),
-        height = this.$terminal.outerHeight(),
-        left = this.$terminal.offset().left,
-        top = this.$terminal.offset().top,
-        right = ($(window).width() - (left + width)),
-        bottom = ($(window).height() - (top + height)),
-        minHeight = 0.75 * $(window).height(),
-        maxHeight = 0.95 * $(window).height();
+    const { parent } = this;
+    let leftOffset = 0;
+    let topOffset = 0;
+    let heightOffset = 0;
+    const width = this.$terminal.outerWidth();
+    let height = this.$terminal.outerHeight();
+    let { left } = this.$terminal.offset();
+    let { top } = this.$terminal.offset();
+    const right = ($(window).width() - (left + width));
+    const bottom = ($(window).height() - (top + height));
+    const minHeight = 0.75 * $(window).height();
+    const maxHeight = 0.95 * $(window).height();
 
     // Calculate offsets
     if (top < 0) { topOffset = -top; }
@@ -672,17 +666,17 @@ var CanvasTerminalHolder = BaseView.extend({
 
     // Set the new position/size
     this.$terminal.animate({
-      left: left + 'px',
-      top: top + 'px',
-      height: height + 'px'
-    }, this.getAnimationTime(), function () {
-        parent.trigger('resizeCanvas');
+      left: `${left}px`,
+      top: `${top}px`,
+      height: `${height}px`,
+    }, this.getAnimationTime(), () => {
+      parent.trigger('resizeCanvas');
     });
   },
 
-  getCanvasLocation: function() {
+  getCanvasLocation() {
     return this.$('div.inside')[0];
-  }
+  },
 });
 
 exports.BaseView = BaseView;

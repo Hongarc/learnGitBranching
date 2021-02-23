@@ -1,74 +1,73 @@
-var { readdirSync, lstatSync } = require('fs');
-var { join } = require('path');
+const { readdirSync, lstatSync } = require('fs');
+const { join } = require('path');
 
-var escapeString = require('../util/escapeString');
-var constants = require('../util/constants');
+const escapeString = require('./escapeString');
+const constants = require('./constants');
 
-exports.parseQueryString = function(uri) {
+exports.parseQueryString = function (uri) {
   // from http://stevenbenner.com/2010/03/javascript-regex-trick-parse-a-query-string-into-an-object/
-  var params = {};
+  const parameters = {};
   uri.replace(
-      new RegExp("([^?=&]+)(=([^&]*))?", "g"),
-      function($0, $1, $2, $3) { params[$1] = $3; }
+    new RegExp('([^?=&]+)(=([^&]*))?', 'g'),
+    ($0, $1, $2, $3) => { parameters[$1] = $3; },
   );
-  return params;
+  return parameters;
 };
 
-exports.isBrowser = function() {
-  var inBrowser = String(typeof window) !== 'undefined';
+exports.isBrowser = function () {
+  const inBrowser = String(typeof window) !== 'undefined';
   return inBrowser;
 };
 
-exports.splitTextCommand = function(value, func, context) {
-  func = func.bind(context);
-  value.split(';').forEach(function(command, index) {
-    command = escapeString(command);
-    command = command
+exports.splitTextCommand = function (value, callback, context) {
+  const functionBind = callback.bind(context);
+  value.split(';').forEach((command, index) => {
+    const newCommand = escapeString(command)
       .replace(/^(\s+)/, '')
       .replace(/(\s+)$/, '')
       .replace(/&quot;/g, '"')
       .replace(/&#x27;/g, "'")
-      .replace(/&#x2F;/g, "/");
+      .replace(/&#x2F;/g, '/');
 
-    if (index > 0 && !command.length) {
+    if (index > 0 && command.length === 0) {
       return;
     }
-    func(command);
+    functionBind(newCommand);
   });
 };
 
-exports.genParseCommand = function(regexMap, eventName) {
-  return function(str) {
-    var method;
-    var regexResults;
+exports.genParseCommand = function (regexMap, eventName) {
+  return function (string) {
+    let method;
+    let regexResults;
 
-    Object.keys(regexMap).forEach(function(_method) {
-      var results = regexMap[_method].exec(str);
+    for (const _method of Object.keys(regexMap)) {
+      const results = regexMap[_method].exec(string);
       if (results) {
         method = _method;
         regexResults = results;
       }
-    });
+    }
 
     return (!method) ? false : {
       toSet: {
-        eventName: eventName,
-        method: method,
-        regexResults: regexResults
-      }
+        eventName,
+        method,
+        regexResults,
+      },
     };
   };
 };
 
-exports.readDirDeep = function(dir) {
-  var paths = [];
-  readdirSync(dir).forEach(function(path) {
-    var aPath = join(dir, path);
+exports.readDirDeep = function (dir) {
+  const paths = [];
+  for (const path of readdirSync(dir)) {
+    const aPath = join(dir, path);
     if (lstatSync(aPath).isDirectory()) {
       paths.push(...exports.readDirDeep(aPath));
     } else {
       paths.push(aPath);
     }
-  });
+  }
   return paths;
 };

@@ -1,5 +1,5 @@
 exports.dialog = {
-  'en_US': [{
+  en_US: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -14,17 +14,17 @@ exports.dialog = {
         '  * Optionally define a hint with ```define hint```',
         '  * Edit the name with ```define name```',
         '  * Optionally define a nice start dialog with ```edit dialog```',
-        '  * Enter the command ```finish``` to output your level JSON!'
-      ]
-    }
+        '  * Enter the command ```finish``` to output your level JSON!',
+      ],
+    },
   }],
-  'de_DE': [{
+  de_DE: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
         '## Willkommen zum Level-Editor!',
         '',
-        'So funktioniert\'s:',
+        "So funktioniert's:",
         '',
         '  * Stelle mit Git-Befehlen die Ausgangssituation her',
         '  * Leg den Startpunkt mit ```define start``` fest',
@@ -33,11 +33,11 @@ exports.dialog = {
         '  * Gib einen Hinweis mittels ```define hint``` an, wenn du willst',
         '  * Änder den Namen mittels ```define name```',
         '  * Wenn du magst, erstelle einen schönen Einführungsdialog mit ```edit dialog```',
-        '  * Gib das Kommando ```finish``` ein um deinen Level als JSON auszugeben'
-      ]
-    }
+        '  * Gib das Kommando ```finish``` ein um deinen Level als JSON auszugeben',
+      ],
+    },
   }],
-  'zh_CN': [{
+  zh_CN: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -52,11 +52,11 @@ exports.dialog = {
         '  * （选做）还可以用 ```define hint``` 命令定义提示',
         '  * 用 ```define name``` 命令设置关卡名称',
         '  * （选做）还可以用 ```edit dialog``` 定义一个漂亮的开始对话框',
-        '  * 用 ```finish``` 命令就可以输出你的关卡的JSON数据了！'
-      ]
-    }
+        '  * 用 ```finish``` 命令就可以输出你的关卡的JSON数据了！',
+      ],
+    },
   }],
-  'zh_TW': [{
+  zh_TW: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -71,11 +71,11 @@ exports.dialog = {
         '  * 還可以用 ```define hint``` 指令定義一個提示',
         '  * 用 ```define name``` 修改名稱',
         '  * 還可以用 ```edit dialog``` 定義一個漂亮的開始對話視窗',
-        '  * 輸入 ```finish``` 即可將您的關卡輸出為 JSON！'
-      ]
-    }
+        '  * 輸入 ```finish``` 即可將您的關卡輸出為 JSON！',
+      ],
+    },
   }],
-  'es_AR': [{
+  es_AR: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -90,11 +90,11 @@ exports.dialog = {
         '  * Opcionalmente, definí pistas con ```define hint```',
         '  * Dale un nombre con ```define name```',
         '  * Opcionalmente, definí un mensaje inicial con ```edit dialog```',
-        '  * ¡Ingresá el comando ```finish``` para obtener tu nivel en formato JSON!'
-      ]
-    }
+        '  * ¡Ingresá el comando ```finish``` para obtener tu nivel en formato JSON!',
+      ],
+    },
   }],
-  'es_MX': [{
+  es_MX: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -109,11 +109,11 @@ exports.dialog = {
         '  * Opcionalmente, crea pistas con ```define hint```',
         '  * Dale un nombre con ```define name```',
         '  * Opcionalmente, crea un mensaje inicial con ```edit dialog```',
-        '  * ¡Introduce el comando ```finish``` para obtener tu nivel en formato JSON!'
-      ]
-    }
+        '  * ¡Introduce el comando ```finish``` para obtener tu nivel en formato JSON!',
+      ],
+    },
   }],
-  'es_ES': [{
+  es_ES: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -128,11 +128,11 @@ exports.dialog = {
         '  * Opcionalmente, crea pistas con ```define hint```',
         '  * Dale un nombre con ```define name```',
         '  * Opcionalmente, crea un mensaje inicial con ```edit dialog```',
-        '  * ¡Introduce el comando ```finish``` para obtener tu nivel en formato JSON!'
-      ]
-    }
+        '  * ¡Introduce el comando ```finish``` para obtener tu nivel en formato JSON!',
+      ],
+    },
   }],
-  'pt_BR': [{
+  pt_BR: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -147,11 +147,11 @@ exports.dialog = {
         '  * Opcionalmente, defina dicas com ```define hint```',
         '  * Dê um nome com ```define name```',
         '  * Opcionalmente, defina uma mensagem inicial com ```edit dialog```',
-        '  * Digite o comando ```finish``` para obter seu nível em formato JSON!'
-      ]
-    }
+        '  * Digite o comando ```finish``` para obter seu nível em formato JSON!',
+      ],
+    },
   }],
-  'gl': [{
+  gl: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -166,30 +166,30 @@ exports.dialog = {
         '  * Opcionalmente, define axudas con ```define hint```',
         '  * Dalle un nome con ```define name```',
         '  * Opcionalmente, define unha mensaxe inicial con ```edit dialog```',
-        '  * Escribe o comando ```finish``` para obter seu nivel en formato JSON!'
-      ]
-    }
+        '  * Escribe o comando ```finish``` para obter seu nivel en formato JSON!',
+      ],
+    },
   }],
-  'fr_FR': [{
+  fr_FR: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
-        '## Bienvenue dans l\'éditeur niveaux !',
+        "## Bienvenue dans l'éditeur niveaux !",
         '',
         'Voici les étapes principales :',
         '',
-        '  * Mettez en place l\'environnement initial avec des commandes git',
-        '  * Définissez l\'arbre de départ avec ```define start```',
+        "  * Mettez en place l'environnement initial avec des commandes git",
+        "  * Définissez l'arbre de départ avec ```define start```",
         '  * Saisissez la série de commandes git qui composent la solution (optimale)',
-        '  * Définissez l\'arbre cible avec ```define goal```. Cela définit aussi la solution',
+        "  * Définissez l'arbre cible avec ```define goal```. Cela définit aussi la solution",
         '  * Optionnellement, définissez un indice avec ```define hint```',
         '  * Changez le nom avec ```define name```',
         '  * Optionellement, definissez un joli dialogue de départ avec ```edit dialog```',
-        '  * Entrez la commande ```finish``` pour délivrer votre niveau JSON!'
-      ]
-    }
+        '  * Entrez la commande ```finish``` pour délivrer votre niveau JSON!',
+      ],
+    },
   }],
-  'ja': [{
+  ja: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -206,11 +206,11 @@ exports.dialog = {
         '  * オプションで```edit dialog```で良い感じに開始時のダイアログを定義します',
         '  * ```finish```コマンドを打つことであなたのlevelがJSONで出力されます',
         '',
-        '*Note: このダイアログは`help builder`で何回でも表示できます！活用してください！*'
-      ]
-    }
+        '*Note: このダイアログは`help builder`で何回でも表示できます！活用してください！*',
+      ],
+    },
   }],
-  'ru_RU': [{
+  ru_RU: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -225,11 +225,11 @@ exports.dialog = {
         '  * По желанию, можно указать подсказку при помощи ```define hint```',
         '  * Указать название уровня при помощи ```define name```',
         '  * По желанию, указать стартовое сообщение при помощи ```edit dialog```',
-        '  * Ввести ```finish``` и получить JSON с описанием уровня!'
-      ]
-    }
+        '  * Ввести ```finish``` и получить JSON с описанием уровня!',
+      ],
+    },
   }],
-  'uk': [{
+  uk: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -244,11 +244,11 @@ exports.dialog = {
         '  * Додатково можна задати підказку за допомогою ```define hint```',
         '  * Редагувати назву рівня за допомогою ```define name```',
         '  * Додатково можна вказати файний початковий діалог за допомогою ```edit dialog```',
-        '  * Ввести команду ```finish``` й отримати JSON з описом рівня!'
-      ]
-    }
+        '  * Ввести команду ```finish``` й отримати JSON з описом рівня!',
+      ],
+    },
   }],
-  'ko': [{
+  ko: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -263,11 +263,11 @@ exports.dialog = {
         '  * ```define hint```로 원하면 힌트도 정의해줄수 있습니다',
         '  * 문제의 이름을 ```define name```로 수정하세요',
         '  * 시작 글이 필요하다면 ```edit dialog```로 쓸 수 있습니다',
-        '  * ```finish```로 여러분의 레벨을 JSON결과로 받을 수 있습니다!'
-      ]
-    }
+        '  * ```finish```로 여러분의 레벨을 JSON결과로 받을 수 있습니다!',
+      ],
+    },
   }],
-  'vi': [{
+  vi: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -282,11 +282,11 @@ exports.dialog = {
         '  * Có thể định nghĩa gợi ý với ```define hint```',
         '  * Chỉnh sửa tên với ```define name```',
         '  * Có thể định nghĩa hội thoại bắt đầu với ```edit dialog```',
-        '  * Nhập lệnh ```finish``` xuất cấp độ của bạn dưới dạng JSON!'
-      ]
-    }
+        '  * Nhập lệnh ```finish``` xuất cấp độ của bạn dưới dạng JSON!',
+      ],
+    },
   }],
-  'sl_SI': [{
+  sl_SI: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -301,11 +301,11 @@ exports.dialog = {
         '  * Opcijsko določi namig z ```define hint```',
         '  * Uredi ime z ```define name```',
         '  * Opcijsko določi ličen začetni dialog z ```edit dialog```',
-        '  * Vnesi ukaz ```finish``` za ustvarjanje JSON različice tvoje stopnje!'
-      ]
-    }
+        '  * Vnesi ukaz ```finish``` za ustvarjanje JSON različice tvoje stopnje!',
+      ],
+    },
   }],
-  'pl': [{
+  pl: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -320,11 +320,11 @@ exports.dialog = {
         '  * Opcjonalnie utwórz podpowiedzi (wskazówkę) za pomocą ```define hint```',
         '  * Nadaj nazwę za pomocą ```define name```',
         '  * Opcjonalnie, utwórz wiadomość początkową za pomocą ```edit dialog```',
-        '  * Wpisz polecenie ```finish```, aby wyświetlić swój poziom w JSON!'
-      ]
-    }
+        '  * Wpisz polecenie ```finish```, aby wyświetlić swój poziom w JSON!',
+      ],
+    },
   }],
-    'ta_IN': [{
+  ta_IN: [{
     type: 'ModalAlert',
     options: {
       markdowns: [
@@ -339,8 +339,8 @@ exports.dialog = {
         '  * தேவை எனில் ```define hint``` கொண்டு உதவி குறிப்பை வரையறுக்கவும்.',
         '  * ```define name``` கொண்டு பெயரைத் திருத்தவும்.',
         '  * தேவை எனில் ```edit dialog``` கொண்டு ஒரு நல்ல முன்னுறையை வரையறுக்கவும்.',
-        '  * ```finish``` கொண்டு இந்த நிலையின் JSON!-ஐ அச்சிடுக.'
-      ]
-    }
-  }]
+        '  * ```finish``` கொண்டு இந்த நிலையின் JSON!-ஐ அச்சிடுக.',
+      ],
+    },
+  }],
 };

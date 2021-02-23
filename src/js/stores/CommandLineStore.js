@@ -1,28 +1,24 @@
-"use strict";
+const { EventEmitter } = require('events');
+const AppConstants = require('../constants/AppConstants');
+const AppDispatcher = require('../dispatcher/AppDispatcher');
 
-var AppConstants = require('../constants/AppConstants');
-var AppDispatcher = require('../dispatcher/AppDispatcher');
-var EventEmitter = require('events').EventEmitter;
+const { ActionTypes } = AppConstants;
+const COMMAND_HISTORY_KEY = 'lgb_CommandHistory';
+const COMMAND_HISTORY_MAX_LENGTH = 100;
+const COMMAND_HISTORY_TO_KEEP = 10;
 
-var ActionTypes = AppConstants.ActionTypes;
-var COMMAND_HISTORY_KEY = 'lgb_CommandHistory';
-var COMMAND_HISTORY_MAX_LENGTH = 100;
-var COMMAND_HISTORY_TO_KEEP = 10;
-
-var _commandHistory = [];
+let _commandHistory = [];
 try {
   _commandHistory = JSON.parse(
-    localStorage.getItem(COMMAND_HISTORY_KEY) || '[]'
+    localStorage.getItem(COMMAND_HISTORY_KEY) || '[]',
   ) || [];
-} catch (e) {
-}
+} catch (error) {}
 
 function _checkForSize() {
   // if our command line history is too big...
   if (_commandHistory.length > COMMAND_HISTORY_MAX_LENGTH) {
     // grab the last 10
-    _commandHistory =
-      _commandHistory.slice(0, COMMAND_HISTORY_TO_KEEP);
+    _commandHistory = _commandHistory.slice(0, COMMAND_HISTORY_TO_KEEP);
   }
 }
 
@@ -30,33 +26,30 @@ function _saveToLocalStorage() {
   try {
     localStorage.setItem(
       COMMAND_HISTORY_KEY,
-      JSON.stringify(_commandHistory)
+      JSON.stringify(_commandHistory),
     );
-  } catch (e) {
-  }
+  } catch (error) {}
 }
 
-var CommandLineStore = Object.assign(
-{},
-EventEmitter.prototype,
-AppConstants.StoreSubscribePrototype,
-{
+var CommandLineStore = {
 
-  getMaxHistoryLength: function() {
+  ...EventEmitter.prototype,
+  ...AppConstants.StoreSubscribePrototype,
+  getMaxHistoryLength() {
     return COMMAND_HISTORY_MAX_LENGTH;
   },
 
-  getCommandHistoryLength: function() {
+  getCommandHistoryLength() {
     return _commandHistory.length;
   },
 
-  getCommandHistory: function() {
+  getCommandHistory() {
     return _commandHistory.slice(0);
   },
 
-  dispatchToken: AppDispatcher.register(function(payload) {
-    var action = payload.action;
-    var shouldInform = false;
+  dispatchToken: AppDispatcher.register((payload) => {
+    const { action } = payload;
+    let shouldInform = false;
 
     switch (action.type) {
       case ActionTypes.SUBMIT_COMMAND:
@@ -72,8 +65,7 @@ AppConstants.StoreSubscribePrototype,
     if (shouldInform) {
       CommandLineStore.emit(AppConstants.CHANGE_EVENT);
     }
-  })
-
-});
+  }),
+};
 
 module.exports = CommandLineStore;

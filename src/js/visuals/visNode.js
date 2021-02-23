@@ -1,9 +1,9 @@
-var Backbone = require('backbone');
-var GRAPHICS = require('../util/constants').GRAPHICS;
+const Backbone = require('backbone');
+const { GRAPHICS } = require('../util/constants');
 
-var VisBase = require('../visuals/visBase').VisBase;
+const { VisBase } = require('./visBase');
 
-var VisNode = VisBase.extend({
+const VisNode = VisBase.extend({
   defaults: {
     depth: undefined,
     maxWidth: null,
@@ -22,14 +22,14 @@ var VisNode = VisBase.extend({
 
     fill: GRAPHICS.defaultNodeFill,
     'stroke-width': GRAPHICS.defaultNodeStrokeWidth,
-    stroke: GRAPHICS.defaultNodeStroke
+    stroke: GRAPHICS.defaultNodeStroke,
   },
 
-  getID: function() {
+  getID() {
     return this.get('id');
   },
 
-  validateAtInit: function() {
+  validateAtInit() {
     if (!this.get('id')) {
       throw new Error('need id for mapping');
     }
@@ -40,12 +40,12 @@ var VisNode = VisBase.extend({
     if (!this.get('pos')) {
       this.set('pos', {
         x: Math.random(),
-        y: Math.random()
+        y: Math.random(),
       });
     }
   },
 
-  initialize: function() {
+  initialize() {
     this.validateAtInit();
     // shorthand for the main objects
     this.gitVisuals = this.get('gitVisuals');
@@ -54,272 +54,271 @@ var VisNode = VisBase.extend({
     this.set('outgoingEdges', []);
   },
 
-  setDepth: function(depth) {
+  setDepth(depth) {
     // for merge commits we need to max the depths across all
     this.set('depth', Math.max(this.get('depth') || 0, depth));
   },
 
-  setDepthBasedOn: function(depthIncrement, offset) {
+  setDepthBasedOn(depthIncrement, offset) {
     if (this.get('depth') === undefined) {
       throw new Error('no depth yet!');
     }
-    var pos = this.get('pos');
+    const pos = this.get('pos');
     pos.y = this.get('depth') * depthIncrement + offset;
   },
 
-  getMaxWidthScaled: function() {
+  getMaxWidthScaled() {
     // returns our max width scaled based on if we are visible
     // from a branch or not
-    var stat = this.gitVisuals.getCommitUpstreamStatus(this.get('commit'));
-    var map = {
+    const stat = this.gitVisuals.getCommitUpstreamStatus(this.get('commit'));
+    const map = {
       branch: 1,
       tag: 1,
       head: 0.3,
-      none: 0.1
+      none: 0.1,
     };
     if (map[stat] === undefined) { throw new Error('bad stat'); }
     return map[stat] * this.get('maxWidth');
   },
 
-  toFront: function() {
+  toFront() {
     this.get('circle').toFront();
     this.get('text').toFront();
   },
 
-  getOpacity: function() {
-    var map = {
-      'branch': 1,
-      'tag' : 1,
-      'head': GRAPHICS.upstreamHeadOpacity,
-      'none': GRAPHICS.upstreamNoneOpacity
+  getOpacity() {
+    const map = {
+      branch: 1,
+      tag: 1,
+      head: GRAPHICS.upstreamHeadOpacity,
+      none: GRAPHICS.upstreamNoneOpacity,
     };
 
-    var stat = this.gitVisuals.getCommitUpstreamStatus(this.get('commit'));
+    const stat = this.gitVisuals.getCommitUpstreamStatus(this.get('commit'));
     if (map[stat] === undefined) {
       throw new Error('invalid status');
     }
     return map[stat];
   },
 
-  getTextScreenCoords: function() {
+  getTextScreenCoords() {
     return this.getScreenCoords();
   },
 
-  getAttributes: function() {
-    var pos = this.getScreenCoords();
-    var textPos = this.getTextScreenCoords();
-    var opacity = this.getOpacity();
-    var dashArray = (this.getIsInOrigin()) ?
-      GRAPHICS.originDash : '';
+  getAttributes() {
+    const pos = this.getScreenCoords();
+    const textPos = this.getTextScreenCoords();
+    const opacity = this.getOpacity();
+    const dashArray = (this.getIsInOrigin())
+      ? GRAPHICS.originDash : '';
 
     return {
       circle: {
         cx: pos.x,
         cy: pos.y,
-        opacity: opacity,
+        opacity,
         r: this.getRadius(),
         fill: this.getFill(),
         'stroke-width': this.get('stroke-width'),
         'stroke-dasharray': dashArray,
-        stroke: this.get('stroke')
+        stroke: this.get('stroke'),
       },
       text: {
         x: textPos.x,
         y: textPos.y,
-        opacity: opacity
-      }
+        opacity,
+      },
     };
   },
 
-  animatePositionTo: function(visNode, speed, easing) {
-    var attributes = this.getAttributes();
-    var destAttributes = visNode.getAttributes();
+  animatePositionTo(visNode, speed, easing) {
+    const attributes = this.getAttributes();
+    const destinationAttributes = visNode.getAttributes();
 
     // TODO make not hardcoded
-    attributes.circle = destAttributes.circle;
-    attributes.text = destAttributes.text;
+    attributes.circle = destinationAttributes.circle;
+    attributes.text = destinationAttributes.text;
     this.animateToAttr(attributes, speed, easing);
   },
 
-  highlightTo: function(visObj, speed, easing) {
+  highlightTo(visObject, speed, easing) {
     // a small function to highlight the color of a node for demonstration purposes
-    var color = visObj.get('fill');
+    const color = visObject.get('fill');
 
-    var attr = {
+    const attribute = {
       circle: {
         fill: color,
         stroke: color,
         'stroke-dasharray': '',
-        'stroke-width': this.get('stroke-width') * 5
+        'stroke-width': this.get('stroke-width') * 5,
       },
-      text: {}
+      text: {},
     };
 
-    this.animateToAttr(attr, speed, easing);
+    this.animateToAttr(attribute, speed, easing);
   },
 
-  animateUpdatedPosition: function(speed, easing) {
-    var attr = this.getAttributes();
-    this.animateToAttr(attr, speed, easing);
+  animateUpdatedPosition(speed, easing) {
+    const attribute = this.getAttributes();
+    this.animateToAttr(attribute, speed, easing);
   },
 
-  animateFromAttrToAttr: function(fromAttr, toAttr, speed, easing) {
+  animateFromAttrToAttr(fromAttribute, toAttribute, speed, easing) {
     // an animation of 0 is essentially setting the attribute directly
-    this.animateToAttr(fromAttr, 0);
-    this.animateToAttr(toAttr, speed, easing);
+    this.animateToAttr(fromAttribute, 0);
+    this.animateToAttr(toAttribute, speed, easing);
   },
 
-  animateToSnapshot: function(snapShot, speed, easing) {
+  animateToSnapshot(snapShot, speed, easing) {
     if (!snapShot[this.getID()]) {
       return;
     }
     this.animateToAttr(snapShot[this.getID()], speed, easing);
   },
 
-  setAttr: function(attr, instant, speed, easing) {
-    var keys = ['text', 'circle'];
-    this.setAttrBase(keys, attr, instant, speed, easing);
+  setAttr(attribute, instant, speed, easing) {
+    const keys = ['text', 'circle'];
+    this.setAttrBase(keys, attribute, instant, speed, easing);
   },
 
-  animateToAttr: function(attr, speed, easing) {
-    VisBase.prototype.animateToAttr.apply(this, arguments);
-    var s = speed !== undefined ? speed : this.get('animationSpeed');
-    var e = easing || this.get('animationEasing');
+  animateToAttr(attribute, speed, easing) {
+    Reflect.apply(VisBase.prototype.animateToAttr, this, arguments);
+    const s = speed !== undefined ? speed : this.get('animationSpeed');
+    const e = easing || this.get('animationEasing');
 
-    if (easing == 'bounce' &&
-        attr.circle && attr.circle.cx !== undefined &&
-        attr.text && attr.text.x !== undefined ) {
+    if (easing == 'bounce'
+        && attribute.circle && attribute.circle.cx !== undefined
+        && attribute.text && attribute.text.x !== undefined) {
       // animate the x attribute without bouncing so it looks like there's
       // gravity in only one direction. Just a small animation polish
-      this.get('circle').animate(attr.circle.cx, s, 'easeInOut');
-      this.get('text').animate(attr.text.x, s, 'easeInOut');
+      this.get('circle').animate(attribute.circle.cx, s, 'easeInOut');
+      this.get('text').animate(attribute.text.x, s, 'easeInOut');
     }
   },
 
-  getScreenCoords: function() {
-    var pos = this.get('pos');
+  getScreenCoords() {
+    const pos = this.get('pos');
     return this.gitVisuals.toScreenCoords(pos);
   },
 
-  getRadius: function() {
+  getRadius() {
     return this.get('radius') || GRAPHICS.nodeRadius;
   },
 
-  getParentScreenCoords: function() {
+  getParentScreenCoords() {
     return this.get('commit').get('parents')[0].get('visNode').getScreenCoords();
   },
 
-  setBirthPosition: function() {
+  setBirthPosition() {
     // utility method for animating it out from underneath a parent
-    var parentCoords = this.getParentScreenCoords();
+    const parentCoords = this.getParentScreenCoords();
 
     this.get('circle').attr({
       cx: parentCoords.x,
       cy: parentCoords.y,
       opacity: 0,
-      r: 0
+      r: 0,
     });
     this.get('text').attr({
       x: parentCoords.x,
       y: parentCoords.y,
-      opacity: 0
+      opacity: 0,
     });
   },
 
-  setBirthFromSnapshot: function(beforeSnapshot) {
+  setBirthFromSnapshot(beforeSnapshot) {
     // first get parent attribute
     // woof this is pretty bad data access...
-    var parentID = this.get('commit').get('parents')[0].get('visNode').getID();
-    var parentAttr = beforeSnapshot[parentID];
+    const parentID = this.get('commit').get('parents')[0].get('visNode').getID();
+    const parentAttribute = beforeSnapshot[parentID];
 
     // then set myself faded on top of parent
     this.get('circle').attr({
       opacity: 0,
       r: 0,
-      cx: parentAttr.circle.cx,
-      cy: parentAttr.circle.cy
+      cx: parentAttribute.circle.cx,
+      cy: parentAttribute.circle.cy,
     });
 
     this.get('text').attr({
       opacity: 0,
-      x: parentAttr.text.x,
-      y: parentAttr.text.y
+      x: parentAttribute.text.x,
+      y: parentAttribute.text.y,
     });
 
     // then do edges
-    var parentCoords = {
-      x: parentAttr.circle.cx,
-      y: parentAttr.circle.cy
+    const parentCoords = {
+      x: parentAttribute.circle.cx,
+      y: parentAttribute.circle.cy,
     };
     this.setOutgoingEdgesBirthPosition(parentCoords);
   },
 
-  setBirth: function() {
+  setBirth() {
     this.setBirthPosition();
     this.setOutgoingEdgesBirthPosition(this.getParentScreenCoords());
   },
 
-  setOutgoingEdgesOpacity: function(opacity) {
-    this.get('outgoingEdges').forEach(function(edge) {
+  setOutgoingEdgesOpacity(opacity) {
+    for (const edge of this.get('outgoingEdges')) {
       edge.setOpacity(opacity);
-    });
+    }
   },
 
-  animateOutgoingEdgesToAttr: function(snapShot, speed, easing) {
-    this.get('outgoingEdges').forEach(function(edge) {
-      var attr = snapShot[edge.getID()];
-      edge.animateToAttr(attr);
+  animateOutgoingEdgesToAttr(snapShot, speed, easing) {
+    this.get('outgoingEdges').forEach((edge) => {
+      const attribute = snapShot[edge.getID()];
+      edge.animateToAttr(attribute);
     }, this);
   },
 
-  animateOutgoingEdges: function(speed, easing) {
-    this.get('outgoingEdges').forEach(function(edge) {
+  animateOutgoingEdges(speed, easing) {
+    this.get('outgoingEdges').forEach((edge) => {
       edge.animateUpdatedPath(speed, easing);
     }, this);
   },
 
-  animateOutgoingEdgesFromSnapshot: function(snapshot, speed, easing) {
-    this.get('outgoingEdges').forEach(function(edge) {
-      var attr = snapshot[edge.getID()];
-      edge.animateToAttr(attr, speed, easing);
+  animateOutgoingEdgesFromSnapshot(snapshot, speed, easing) {
+    this.get('outgoingEdges').forEach((edge) => {
+      const attribute = snapshot[edge.getID()];
+      edge.animateToAttr(attribute, speed, easing);
     }, this);
   },
 
-  setOutgoingEdgesBirthPosition: function(parentCoords) {
-    this.get('outgoingEdges').forEach(function(edge) {
-      var headPos = edge.get('head').getScreenCoords();
-      var path = edge.genSmoothBezierPathStringFromCoords(parentCoords, headPos);
+  setOutgoingEdgesBirthPosition(parentCoords) {
+    this.get('outgoingEdges').forEach((edge) => {
+      const headPos = edge.get('head').getScreenCoords();
+      const path = edge.genSmoothBezierPathStringFromCoords(parentCoords, headPos);
       edge.get('path').stop();
       edge.get('path').attr({
-        path: path,
-        opacity: 0
+        path,
+        opacity: 0,
       });
     }, this);
   },
 
-  parentInFront: function() {
+  parentInFront() {
     // woof! talk about bad data access
     this.get('commit').get('parents')[0].get('visNode').toFront();
   },
 
-  getFontSize: function(str) {
-    if (str.length < 3) {
+  getFontSize(string) {
+    if (string.length < 3) {
       return 12;
-    } else if (str.length < 5) {
+    } if (string.length < 5) {
       return 10;
-    } else {
-      return 8;
     }
+    return 8;
   },
 
-  getFill: function() {
+  getFill() {
     // first get our status, might be easy from this
-    var stat = this.gitVisuals.getCommitUpstreamStatus(this.get('commit'));
+    const stat = this.gitVisuals.getCommitUpstreamStatus(this.get('commit'));
     if (stat == 'head') {
       return GRAPHICS.headRectFill;
-    } else if (stat == 'tag') {
+    } if (stat == 'tag') {
       return GRAPHICS.orphanNodeFill;
-    } else if (stat == 'none') {
+    } if (stat == 'none') {
       return GRAPHICS.orphanNodeFill;
     }
 
@@ -327,36 +326,36 @@ var VisNode = VisBase.extend({
     return this.gitVisuals.getBlendedHuesForCommit(this.get('commit'));
   },
 
-  attachClickHandlers: function() {
+  attachClickHandlers() {
     if (this.get('gitVisuals').options.noClick) {
       return;
     }
-    var commandStr = 'git checkout ' + this.get('commit').get('id');
-    var Main = require('../app');
-    [this.get('circle'), this.get('text')].forEach(function(rObj) {
-      rObj.click(function() {
-        Main.getEventBaton().trigger('commandSubmitted', commandStr);
+    const commandString = `git checkout ${this.get('commit').get('id')}`;
+    const Main = require('../app');
+    for (const rObject of [this.get('circle'), this.get('text')]) {
+      rObject.click(() => {
+        Main.getEventBaton().trigger('commandSubmitted', commandString);
       });
-      $(rObj.node).css('cursor', 'pointer');
-    });
+      $(rObject.node).css('cursor', 'pointer');
+    }
   },
 
-  setOpacity: function(opacity) {
+  setOpacity(opacity) {
     opacity = (opacity === undefined) ? 1 : opacity;
 
     // set the opacity on my stuff
-    var keys = ['circle', 'text'];
-    keys.forEach(function(key) {
+    const keys = ['circle', 'text'];
+    keys.forEach(function (key) {
       this.get(key).attr({
-        opacity: opacity
+        opacity,
       });
     }, this);
   },
 
-  remove: function() {
+  remove() {
     this.removeKeys(['circle'], ['text']);
     // needs a manual removal of text for whatever reason
-    var text = this.get('text');
+    const text = this.get('text');
     if (text) {
       text.remove();
     }
@@ -364,41 +363,41 @@ var VisNode = VisBase.extend({
     this.gitVisuals.removeVisNode(this);
   },
 
-  removeAll: function() {
+  removeAll() {
     this.remove();
     this.removeAllEdges();
   },
 
-  removeAllEdges: function() {
-    this.get('outgoingEdges').forEach(function(edge) {
+  removeAllEdges() {
+    this.get('outgoingEdges').forEach((edge) => {
       edge.remove();
     }, this);
   },
 
-  getExplodeStepFunc: function(speed) {
+  getExplodeStepFunc(speed) {
     if (!speed) {
       throw new Error('need speed by now');
     }
-    var circle = this.get('circle');
+    const circle = this.get('circle');
 
     // decide on a speed
-    var speedMag = 20 / speed;
+    const speedMag = 20 / speed;
     // aim upwards
-    var angle = Math.PI + Math.random() * 1 * Math.PI;
-    var gravity = (1 / 5) * speed;
-    var drag = (1 / 100) * speed;
+    const angle = Math.PI + Math.random() * 1 * Math.PI;
+    const gravity = (1 / 5) * speed;
+    const drag = (1 / 100) * speed;
 
-    var vx = speedMag * Math.cos(angle);
-    var vy = speedMag * Math.sin(angle);
-    var x = circle.attr('cx');
-    var y = circle.attr('cy');
+    let vx = speedMag * Math.cos(angle);
+    let vy = speedMag * Math.sin(angle);
+    let x = circle.attr('cx');
+    let y = circle.attr('cy');
 
-    var maxWidth = this.gitVisuals.paper.width;
-    var maxHeight = this.gitVisuals.paper.height;
-    var elasticity = 0.8 / speed;
-    var dt = 1.0;
+    const maxWidth = this.gitVisuals.paper.width;
+    const maxHeight = this.gitVisuals.paper.height;
+    const elasticity = 0.8 / speed;
+    const dt = 1;
 
-    var stepFunc = function() {
+    const stepFunction = function () {
       // lol epic runge kutta here... not
       vy += gravity * dt - drag * vy;
       vx -= drag * vx;
@@ -416,7 +415,7 @@ var VisNode = VisBase.extend({
 
       circle.attr({
         cx: x,
-        cy: y
+        cy: y,
       });
       // continuation calculation
       if ((vx * vx + vy * vy) < 0.1 && Math.abs(y - maxHeight) <= 0.1) {
@@ -426,40 +425,40 @@ var VisNode = VisBase.extend({
       // keep animating!
       return true;
     };
-    return stepFunc;
+    return stepFunction;
   },
 
-  makeCircle: function(paper) {
-    var pos = this.getScreenCoords();
+  makeCircle(paper) {
+    const pos = this.getScreenCoords();
     return paper.circle(
       pos.x,
       pos.y,
-      this.getRadius()
+      this.getRadius(),
     ).attr(this.getAttributes().circle);
   },
 
-  makeText: function(paper) {
-    var textPos = this.getTextScreenCoords();
+  makeText(paper) {
+    const textPos = this.getTextScreenCoords();
     return paper.text(textPos.x, textPos.y, String(this.get('id')));
   },
 
-  genGraphics: function() {
-    var paper = this.gitVisuals.paper;
-    var circle = this.makeCircle(paper);
-    var text = this.makeText(paper);
+  genGraphics() {
+    const { paper } = this.gitVisuals;
+    const circle = this.makeCircle(paper);
+    const text = this.makeText(paper);
 
     text.attr({
       'font-size': this.getFontSize(this.get('id')),
       'font-weight': 'bold',
-      'font-family': 'Menlo, Monaco, Consolas, \'Droid Sans Mono\', monospace',
-      opacity: this.getOpacity()
+      'font-family': "Menlo, Monaco, Consolas, 'Droid Sans Mono', monospace",
+      opacity: this.getOpacity(),
     });
 
     this.set('circle', circle);
     this.set('text', text);
 
     this.attachClickHandlers();
-  }
+  },
 });
 
 exports.VisNode = VisNode;

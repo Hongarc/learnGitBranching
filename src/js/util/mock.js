@@ -1,10 +1,9 @@
-exports.mock = function(Constructor) {
-  var dummy = {};
-  var stub = function() {};
+exports.mock = function (Constructor) {
+  const dummy = {};
+  const stub = function () {};
 
-  for (var key in Constructor.prototype) {
+  for (const key in Constructor.prototype) {
     dummy[key] = stub;
   }
   return dummy;
 };
-

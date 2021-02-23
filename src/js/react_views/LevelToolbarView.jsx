@@ -1,53 +1,54 @@
-var React = require('react');
-var PropTypes = require('prop-types');
+const React = require('react');
+const PropTypes = require('prop-types');
 
-var intl = require('../intl');
-var reactUtil = require('../util/reactUtil');
+const intl = require('../intl');
+const reactUtil = require('../util/reactUtil');
 
 class LevelToolbarView extends React.Component {
-
-  constructor(props, context) {
-    super(props, context);
+  constructor(properties, context) {
+    super(properties, context);
     this.state = {
       isHidden: true,
-      isGoalExpanded: this.props.parent.getIsGoalExpanded()
+      isGoalExpanded: this.props.parent.getIsGoalExpanded(),
     };
   }
 
   componentWillUnmount() {
     this._isMounted = false;
   }
+
   componentDidMount() {
     this._isMounted = true;
     this.setState({
       isHidden: this.props.parent.getIsGoalExpanded(),
-      isGoalExpanded: this.props.parent.getIsGoalExpanded()
+      isGoalExpanded: this.props.parent.getIsGoalExpanded(),
     });
-    this.props.parent.on('goalToggled', function() {
+    this.props.parent.on('goalToggled', () => {
       if (!this._isMounted) {
         return;
       }
 
       this.setState({
-        isGoalExpanded: this.props.parent.getIsGoalExpanded()
+        isGoalExpanded: this.props.parent.getIsGoalExpanded(),
       });
-    }.bind(this));
+    });
   }
 
   render() {
     return (
       <div className={reactUtil.joinClasses([
-          'toolbar',
-          'level-toolbar',
-          'box',
-          'vertical',
-          'center',
-          'transitionAll',
-          this.state.isHidden ? 'hidden' : ''
-        ])}>
+        'toolbar',
+        'level-toolbar',
+        'box',
+        'vertical',
+        'center',
+        'transitionAll',
+        this.state.isHidden ? 'hidden' : '',
+      ])}
+      >
         <div className="clearfix">
           <div className="levelNameWrapper">
-            <i className="icon-bolt"></i>
+            <i className="icon-bolt" />
             { intl.str('level-label') }
             <span className="levelToolbarSpan">
               {this.props.name}
@@ -58,17 +59,18 @@ class LevelToolbarView extends React.Component {
           <div className="showGoalWrapper">
             <button
               onClick={this.props.onGoalClick}
-              type="button">
-              {this.state.isGoalExpanded ?
-                intl.str('hide-goal-button') :
-                intl.str('show-goal-button')
-              }
+              type="button"
+            >
+              {this.state.isGoalExpanded
+                ? intl.str('hide-goal-button')
+                : intl.str('show-goal-button')}
             </button>
           </div>
           <div className="showObjectiveWrapper">
             <button
               onClick={this.props.onObjectiveClick}
-              type="button">
+              type="button"
+            >
               {intl.str('objective-button')}
             </button>
           </div>
@@ -76,14 +78,13 @@ class LevelToolbarView extends React.Component {
       </div>
     );
   }
-
-};
+}
 
 LevelToolbarView.propTypes = {
   name: PropTypes.string.isRequired,
   onGoalClick: PropTypes.func.isRequired,
   onObjectiveClick: PropTypes.func.isRequired,
-  parent: PropTypes.object.isRequired
-}
+  parent: PropTypes.object.isRequired,
+};
 
 module.exports = LevelToolbarView;

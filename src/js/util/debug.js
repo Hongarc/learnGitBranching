@@ -1,4 +1,4 @@
-var toGlobalize = {
+const toGlobalize = {
   App: require('../app/index.js'),
   Tree: require('../visuals/tree'),
   Visuals: require('../visuals'),
@@ -13,7 +13,7 @@ var toGlobalize = {
   GlobalStateStore: require('../stores/GlobalStateStore'),
   LocaleStore: require('../stores/LocaleStore'),
   Levels: require('../graph/treeCompare'),
-  Constants: require('../util/constants'),
+  Constants: require('./constants'),
   Commands: require('../commands'),
   Collections: require('../models/collections'),
   Async: require('../visuals/animation'),
@@ -24,38 +24,38 @@ var toGlobalize = {
   RebaseView: require('../views/rebaseView'),
   Views: require('../views'),
   MultiView: require('../views/multiView'),
-  ZoomLevel: require('../util/zoomLevel'),
+  ZoomLevel: require('./zoomLevel'),
   VisBranch: require('../visuals/visBranch'),
   TreeCompare: require('../graph/treeCompare'),
   Level: require('../level'),
-  Sandbox: require('../sandbox/'),
+  Sandbox: require('../sandbox'),
   GitDemonstrationView: require('../views/gitDemonstrationView'),
   Markdown: require('marked'),
   LevelDropdownView: require('../views/levelDropdownView'),
   BuilderViews: require('../views/builderViews'),
-  Util: require('../util/index'),
-  Intl: require('../intl')
+  Util: require('./index'),
+  Intl: require('../intl'),
 };
 
-Object.keys(toGlobalize).forEach(function(moduleName) {
-  var module = toGlobalize[moduleName];
+for (const moduleName of Object.keys(toGlobalize)) {
+  const module = toGlobalize[moduleName];
 
-  for (var key in module) {
-    var value = module[key];
+  for (const key in module) {
+    let value = module[key];
     if (value instanceof Function) {
       value = value.bind(module);
     }
-    window['debug_' + moduleName + '_' + key] = value;
+    window[`debug_${moduleName}_${key}`] = value;
   }
-});
+}
 
-$(document).ready(function() {
+$(document).ready(() => {
   window.debug_events = toGlobalize.Main.getEvents();
   window.debug_eventBaton = toGlobalize.Main.getEventBaton();
   window.debug_sandbox = toGlobalize.Main.getSandbox();
   window.debug_modules = toGlobalize;
   window.debug_levelDropdown = toGlobalize.Main.getLevelDropdown();
-  window.debug_copyTree = function() {
+  window.debug_copyTree = function () {
     return toGlobalize.Main.getSandbox().mainVis.gitEngine.printAndCopyTree();
   };
 });

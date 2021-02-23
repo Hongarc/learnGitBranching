@@ -5,14 +5,14 @@ describe('this store', function() {
 
   it('has sequences and levels', function() {
     var sequenceMap = LevelStore.getSequenceToLevels();
-    Object.keys(sequenceMap).forEach(function(levelSequence) {
+    Object.keys(sequenceMap).forEach((levelSequence) => {
       expect(LevelStore.getSequences().indexOf(levelSequence) >= 0)
         .toEqual(true);
 
-      sequenceMap[levelSequence].forEach(function(level) {
+      sequenceMap[levelSequence].forEach((level) => {
         expect(LevelStore.getLevel(level.id)).toEqual(level);
-      }.bind(this));
-    }.bind(this));
+      });
+    });
   });
 
   it('can solve a level and then reset', function() {

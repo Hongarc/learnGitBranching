@@ -1,55 +1,55 @@
-var Backbone = require('backbone');
+const Backbone = require('backbone');
 
-var MyError = Backbone.Model.extend({
+const MyError = Backbone.Model.extend({
   defaults: {
-    type: 'MyError'
+    type: 'MyError',
   },
-  toString: function() {
-    return this.get('type') + ': ' + this.get('msg');
+  toString() {
+    return `${this.get('type')}: ${this.get('msg')}`;
   },
 
-  getMsg: function() {
+  getMsg() {
     if (!this.get('msg')) {
       debugger;
       console.warn('my error without message');
     }
     return this.get('msg');
-  }
+  },
 });
 
-var CommandProcessError = exports.CommandProcessError = MyError.extend({
+const CommandProcessError = exports.CommandProcessError = MyError.extend({
   defaults: {
-    type: 'Command Process Error'
-  }
+    type: 'Command Process Error',
+  },
 });
 
-var CommandResult = exports.CommandResult = MyError.extend({
+const CommandResult = exports.CommandResult = MyError.extend({
   defaults: {
-    type: 'Command Result'
-  }
+    type: 'Command Result',
+  },
 });
 
-var Warning = exports.Warning = MyError.extend({
+const Warning = exports.Warning = MyError.extend({
   defaults: {
-    type: 'Warning'
-  }
+    type: 'Warning',
+  },
 });
 
-var GitError = exports.GitError = MyError.extend({
+const GitError = exports.GitError = MyError.extend({
   defaults: {
-    type: 'Git Error'
-  }
+    type: 'Git Error',
+  },
 });
 
-var filterError = function(err) {
-  if (err instanceof CommandProcessError ||
-      err instanceof GitError ||
-      err instanceof CommandResult ||
-      err instanceof Warning) {
+const filterError = function (error) {
+  if (error instanceof CommandProcessError
+      || error instanceof GitError
+      || error instanceof CommandResult
+      || error instanceof Warning) {
     // yay! one of ours
-    return;
+
   } else {
-    throw err;
+    throw error;
   }
 };
 

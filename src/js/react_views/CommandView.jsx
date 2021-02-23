@@ -1,18 +1,17 @@
-var React = require('react');
-var ReactDOM = require('react-dom');
-var PropTypes = require('prop-types');
+const React = require('react');
+const ReactDOM = require('react-dom');
+const PropTypes = require('prop-types');
 
-var reactUtil = require('../util/reactUtil');
-var keyMirror = require('../util/keyMirror');
+const reactUtil = require('../util/reactUtil');
+const keyMirror = require('../util/keyMirror');
 
-var STATUSES = keyMirror({
+const STATUSES = keyMirror({
   inqueue: null,
   processing: null,
-  finished: null
+  finished: null,
 });
 
-class CommandView extends React.Component{
-
+class CommandView extends React.Component {
   componentDidMount() {
     this.props.command.on('change', this.updateStateFromModel, this);
     this.updateStateFromModel();
@@ -23,46 +22,46 @@ class CommandView extends React.Component{
   }
 
   updateStateFromModel() {
-    var commandJSON = this.props.command.toJSON();
+    const commandJSON = this.props.command.toJSON();
     this.setState({
       status: commandJSON.status,
       rawStr: commandJSON.rawStr,
       warnings: commandJSON.warnings,
-      result: commandJSON.result
+      result: commandJSON.result,
     });
   }
 
-  constructor(props, context) {
-    super(props, context);
+  constructor(properties, context) {
+    super(properties, context);
     this.state = {
       status: STATUSES.inqueue,
       rawStr: 'git commit',
       warnings: [],
-      result: ''
+      result: '',
     };
   }
 
   render() {
-    var commandClass = reactUtil.joinClasses([
+    const commandClass = reactUtil.joinClasses([
       this.state.status,
       'commandLine',
-      'transitionBackground'
+      'transitionBackground',
     ]);
 
     return (
       <div id={this.props.id} className="reactCommandView">
         <p className={commandClass}>
-          <span className="prompt">{'$'}</span>
+          <span className="prompt">$</span>
           {' '}
           <span dangerouslySetInnerHTML={{
-              __html: this.state.rawStr
-            }}
+            __html: this.state.rawStr,
+          }}
           />
           <span className="icons transitionAllSlow">
-            <i className="icon-exclamation-sign"></i>
-            <i className="icon-check-empty"></i>
-            <i className="icon-retweet"></i>
-            <i className="icon-check"></i>
+            <i className="icon-exclamation-sign" />
+            <i className="icon-check-empty" />
+            <i className="icon-retweet" />
+            <i className="icon-check" />
           </span>
         </p>
         {this.renderResult()}
@@ -79,51 +78,51 @@ class CommandView extends React.Component{
     }
     // We are going to get a ton of raw markup here
     // so lets split into paragraphs ourselves
-    var paragraphs = this.state.result.split("\n");
-    var result = [];
-    for (var i = 0; i < paragraphs.length; i++) {
-      if (paragraphs[i].startsWith('https://')) {
+    const paragraphs = this.state.result.split('\n');
+    const result = [];
+    for (const [index, paragraph] of paragraphs.entries()) {
+      if (paragraph.startsWith('https://')) {
         result.push(
           <a
-            href={paragraphs[i]}
-            key={'paragraph_' + i}
+            href={paragraph}
+            key={`paragraph_${index}`}
             dangerouslySetInnerHTML={{
-              __html: paragraphs[i]
+              __html: paragraph,
             }}
-          />
+          />,
         );
       } else {
         result.push(
           <p
-            key={'paragraph_' + i}
+            key={`paragraph_${index}`}
             dangerouslySetInnerHTML={{
-              __html: paragraphs[i]
+              __html: paragraph,
             }}
-          />
+          />,
         );
       }
     }
     return (
-      <div className={'commandLineResult'}>
+      <div className="commandLineResult">
         {result}
       </div>
     );
   }
 
   renderFormattedWarnings() {
-    var warnings = this.state.warnings;
-    var result = [];
-    for (var i = 0; i < warnings.length; i++) {
+    const { warnings } = this.state;
+    const result = [];
+    for (const [index, warning] of warnings.entries()) {
       result.push(
-        <p key={'warning_' + i}>
-          <i className="icon-exclamation-sign"></i>
-          {warnings[i]}
-        </p>
+        <p key={`warning_${index}`}>
+          <i className="icon-exclamation-sign" />
+          {warning}
+        </p>,
       );
     }
     return result;
   }
-};
+}
 
 CommandView.propTypes = {
   // the backbone command model

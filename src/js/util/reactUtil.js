@@ -1,4 +1,4 @@
-var joinClasses = function(classes) {
+const joinClasses = function (classes) {
   return classes.join(' ');
 };
 

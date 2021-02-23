@@ -1,4 +1,4 @@
-var _warnOnce = true;
+let _warnOnce = true;
 function detectZoom() {
   /**
    * Note: this method has only been tested on Chrome
@@ -19,4 +19,3 @@ function detectZoom() {
 }
 
 exports.detectZoom = detectZoom;
-

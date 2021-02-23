@@ -1,49 +1,49 @@
-var Q = require('q');
-var Backbone = require('backbone');
+const Q = require('q');
+const Backbone = require('backbone');
 
-var Commit = require('../git').Commit;
-var Branch = require('../git').Branch;
-var Tag = require('../git').Tag;
+const { Commit } = require('../git');
+const { Branch } = require('../git');
+const { Tag } = require('../git');
 
-var Command = require('../models/commandModel').Command;
-var TIME = require('../util/constants').TIME;
+const { Command } = require('./commandModel');
+const { TIME } = require('../util/constants');
 
-var intl = require('../intl');
+const intl = require('../intl');
 
-var CommitCollection = Backbone.Collection.extend({
-  model: Commit
+const CommitCollection = Backbone.Collection.extend({
+  model: Commit,
 });
 
-var CommandCollection = Backbone.Collection.extend({
-  model: Command
+const CommandCollection = Backbone.Collection.extend({
+  model: Command,
 });
 
-var BranchCollection = Backbone.Collection.extend({
-  model: Branch
+const BranchCollection = Backbone.Collection.extend({
+  model: Branch,
 });
 
-var TagCollection = Backbone.Collection.extend({
-  model: Tag
+const TagCollection = Backbone.Collection.extend({
+  model: Tag,
 });
 
-var CommandBuffer = Backbone.Model.extend({
+const CommandBuffer = Backbone.Model.extend({
   defaults: {
-    collection: null
+    collection: null,
   },
 
-  initialize: function(options) {
+  initialize(options) {
     options.collection.bind('add', this.addCommand, this);
 
     this.buffer = [];
     this.timeout = null;
   },
 
-  addCommand: function(command) {
+  addCommand(command) {
     this.buffer.push(command);
     this.touchBuffer();
   },
 
-  touchBuffer: function() {
+  touchBuffer() {
     // touch buffer just essentially means we just check if our buffer is being
     // processed. if it's not, we immediately process the first item
     // and then set the timeout.
@@ -54,18 +54,17 @@ var CommandBuffer = Backbone.Model.extend({
     this.setTimeout();
   },
 
-
-  setTimeout: function() {
-    this.timeout = setTimeout(function() {
-        this.sipFromBuffer();
-    }.bind(this), TIME.betweenCommandsDelay);
+  setTimeout() {
+    this.timeout = setTimeout(() => {
+      this.sipFromBuffer();
+    }, TIME.betweenCommandsDelay);
   },
 
-  popAndProcess: function() {
-    var popped = this.buffer.shift(0);
+  popAndProcess() {
+    let popped = this.buffer.shift(0);
 
     // find a command with no error (aka unprocessed)
-    while (popped.get('error') && this.buffer.length) {
+    while (popped.get('error') && this.buffer.length > 0) {
       popped = this.buffer.shift(0);
     }
     if (!popped.get('error')) {
@@ -76,27 +75,27 @@ var CommandBuffer = Backbone.Model.extend({
     }
   },
 
-  processCommand: function(command) {
+  processCommand(command) {
     command.set('status', 'processing');
 
-    var deferred = Q.defer();
-    deferred.promise.then(function() {
+    const deferred = Q.defer();
+    deferred.promise.then(() => {
       this.setTimeout();
-    }.bind(this));
+    });
 
-    var eventName = command.get('eventName');
+    const eventName = command.get('eventName');
     if (!eventName) {
       throw new Error('I need an event to trigger when this guy is parsed and ready');
     }
 
-    var Main = require('../app');
-    var eventBaton = Main.getEventBaton();
+    const Main = require('../app');
+    const eventBaton = Main.getEventBaton();
 
-    var numListeners = eventBaton.getNumListeners(eventName);
-    if (!numListeners) {
-      var Errors = require('../util/errors');
+    const numberListeners = eventBaton.getNumListeners(eventName);
+    if (!numberListeners) {
+      const Errors = require('../util/errors');
       command.set('error', new Errors.GitError({
-        msg: intl.str('error-command-currently-not-supported')
+        msg: intl.str('error-command-currently-not-supported'),
       }));
       deferred.resolve();
       return;
@@ -105,19 +104,19 @@ var CommandBuffer = Backbone.Model.extend({
     Main.getEventBaton().trigger(eventName, command, deferred);
   },
 
-  clear: function() {
+  clear() {
     clearTimeout(this.timeout);
     this.timeout = null;
   },
 
-  sipFromBuffer: function() {
-    if (!this.buffer.length) {
+  sipFromBuffer() {
+    if (this.buffer.length === 0) {
       this.clear();
       return;
     }
 
     this.popAndProcess();
-  }
+  },
 });
 
 exports.CommitCollection = CommitCollection;
@@ -125,4 +124,3 @@ exports.CommandCollection = CommandCollection;
 exports.BranchCollection = BranchCollection;
 exports.TagCollection = TagCollection;
 exports.CommandBuffer = CommandBuffer;
-

@@ -1,17 +1,17 @@
-var Backbone = require('backbone');
+const Backbone = require('backbone');
 
-var Errors = require('../util/errors');
+const Errors = require('../util/errors');
 
-var ParseWaterfall = require('../level/parseWaterfall').ParseWaterfall;
-var LevelStore = require('../stores/LevelStore');
-var intl = require('../intl');
+const { ParseWaterfall } = require('../level/parseWaterfall');
+const LevelStore = require('../stores/LevelStore');
+const intl = require('../intl');
 
-var CommandProcessError = Errors.CommandProcessError;
-var GitError = Errors.GitError;
-var Warning = Errors.Warning;
-var CommandResult = Errors.CommandResult;
+const { CommandProcessError } = Errors;
+const { GitError } = Errors;
+const { Warning } = Errors;
+const { CommandResult } = Errors;
 
-var Command = Backbone.Model.extend({
+const Command = Backbone.Model.extend({
   defaults: {
     status: 'inqueue',
     rawStr: null,
@@ -25,11 +25,11 @@ var Command = Backbone.Model.extend({
     generalArgs: null,
     supportedMap: null,
     options: null,
-    method: null
+    method: null,
 
   },
 
-  initialize: function() {
+  initialize() {
     this.initDefaults();
     this.validateAtInit();
 
@@ -42,7 +42,7 @@ var Command = Backbone.Model.extend({
     this.parseOrCatch();
   },
 
-  initDefaults: function() {
+  initDefaults() {
     // weird things happen with defaults if you don't
     // make new objects
     this.set('generalArgs', []);
@@ -50,7 +50,7 @@ var Command = Backbone.Model.extend({
     this.set('warnings', []);
   },
 
-  replaceDotWithHead: function(string) {
+  replaceDotWithHead(string) {
     return string.replace(/\./g, 'HEAD');
   },
 
@@ -59,133 +59,133 @@ var Command = Backbone.Model.extend({
    * -r, we want to just make these general
    * args for git
    */
-  appendOptionR: function() {
-    var rOptions = this.getOptionsMap()['-r'] || [];
+  appendOptionR() {
+    const rOptions = this.getOptionsMap()['-r'] || [];
     this.setGeneralArgs(
-      this.getGeneralArgs().concat(rOptions)
+      this.getGeneralArgs().concat(rOptions),
     );
   },
 
   // if order is important
-  prependOptionR: function() {
-    var rOptions = this.getOptionsMap()['-r'] || [];
+  prependOptionR() {
+    const rOptions = this.getOptionsMap()['-r'] || [];
     this.setGeneralArgs(
-      rOptions.concat(this.getGeneralArgs())
+      rOptions.concat(this.getGeneralArgs()),
     );
   },
 
-  mapDotToHead: function() {
-    var generalArgs = this.getGeneralArgs();
-    var options = this.getOptionsMap();
+  mapDotToHead() {
+    let generalArguments = this.getGeneralArgs();
+    const options = this.getOptionsMap();
 
-    generalArgs = generalArgs.map(function(arg) {
-      return this.replaceDotWithHead(arg);
+    generalArguments = generalArguments.map(function (argument) {
+      return this.replaceDotWithHead(argument);
     }, this);
-    var newMap = {};
-    Object.keys(options).forEach(function(key) {
-      var args = options[key];
-      newMap[key] = Object.values(args).map(function (arg) {
-        return this.replaceDotWithHead(arg);
+    const newMap = {};
+    Object.keys(options).forEach(function (key) {
+      const arguments_ = options[key];
+      newMap[key] = Object.values(arguments_).map(function (argument) {
+        return this.replaceDotWithHead(argument);
       }, this);
     }, this);
-    this.setGeneralArgs(generalArgs);
+    this.setGeneralArgs(generalArguments);
     this.setOptionsMap(newMap);
   },
 
-  deleteOptions: function(options) {
-    var map = this.getOptionsMap();
-    options.forEach(function(option) {
+  deleteOptions(options) {
+    const map = this.getOptionsMap();
+    options.forEach((option) => {
       delete map[option];
     }, this);
     this.setOptionsMap(map);
   },
 
-  getGeneralArgs: function() {
+  getGeneralArgs() {
     return this.get('generalArgs');
   },
 
-  setGeneralArgs: function(args) {
-    this.set('generalArgs', args);
+  setGeneralArgs(arguments_) {
+    this.set('generalArgs', arguments_);
   },
 
-  setOptionsMap: function(map) {
+  setOptionsMap(map) {
     this.set('supportedMap', map);
   },
 
-  getOptionsMap: function() {
+  getOptionsMap() {
     return this.get('supportedMap');
   },
 
-  acceptNoGeneralArgs: function() {
-    if (this.getGeneralArgs().length) {
+  acceptNoGeneralArgs() {
+    if (this.getGeneralArgs().length > 0) {
       throw new GitError({
-        msg: intl.str('git-error-no-general-args')
+        msg: intl.str('git-error-no-general-args'),
       });
     }
   },
 
-  oneArgImpliedHead: function(args, option) {
-    this.validateArgBounds(args, 0, 1, option);
+  oneArgImpliedHead(arguments_, option) {
+    this.validateArgBounds(arguments_, 0, 1, option);
     // and if it's one, add a HEAD to the back
-    this.impliedHead(args, 0);
+    this.impliedHead(arguments_, 0);
   },
 
-  twoArgsImpliedHead: function(args, option) {
+  twoArgsImpliedHead(arguments_, option) {
     // our args we expect to be between 1 and 2
-    this.validateArgBounds(args, 1, 2, option);
+    this.validateArgBounds(arguments_, 1, 2, option);
     // and if it's one, add a HEAD to the back
-    this.impliedHead(args, 1);
+    this.impliedHead(arguments_, 1);
   },
 
-  oneArgImpliedOrigin: function(args) {
-    this.validateArgBounds(args, 0, 1);
-    if (!args.length) {
-      args.unshift('origin');
+  oneArgImpliedOrigin(arguments_) {
+    this.validateArgBounds(arguments_, 0, 1);
+    if (arguments_.length === 0) {
+      arguments_.unshift('origin');
     }
   },
 
-  twoArgsForOrigin: function(args) {
-    this.validateArgBounds(args, 0, 2);
+  twoArgsForOrigin(arguments_) {
+    this.validateArgBounds(arguments_, 0, 2);
   },
 
-  impliedHead: function(args, min) {
-    if(args.length == min) {
-      args.push('HEAD');
+  impliedHead(arguments_, min) {
+    if (arguments_.length == min) {
+      arguments_.push('HEAD');
     }
   },
 
   // this is a little utility class to help arg validation that happens over and over again
-  validateArgBounds: function(args, lower, upper, option) {
-    var what = (option === undefined) ?
-      'git ' + this.get('method') :
-      this.get('method') + ' ' + option + ' ';
-    what = 'with ' + what;
+  validateArgBounds(arguments_, lower, upper, option) {
+    let what = (option === undefined)
+      ? `git ${this.get('method')}`
+      : `${this.get('method')} ${option} `;
+    what = `with ${what}`;
 
-    if (args.length < lower) {
+    if (arguments_.length < lower) {
       throw new GitError({
         msg: intl.str(
           'git-error-args-few',
           {
             lower: String(lower),
-            what: what
-          }
-        )
+            what,
+          },
+        ),
       });
     }
-    if (args.length > upper) {
+    if (arguments_.length > upper) {
       throw new GitError({
         msg: intl.str(
           'git-error-args-many',
           {
             upper: String(upper),
-            what: what
-          }
-        )
+            what,
+          },
+        ),
       });
     }
   },
 
-  validateAtInit: function() {
+  validateAtInit() {
     if (this.get('rawStr') === null) {
       throw new Error('Give me a string!');
     }
@@ -194,30 +194,30 @@ var Command = Backbone.Model.extend({
     }
   },
 
-  setResult: function(msg) {
-    this.set('result', msg);
+  setResult(message) {
+    this.set('result', message);
   },
 
-  finishWith: function(deferred) {
+  finishWith(deferred) {
     this.set('status', 'finished');
     deferred.resolve();
   },
 
-  addWarning: function(msg) {
-    this.get('warnings').push(msg);
+  addWarning(message) {
+    this.get('warnings').push(message);
     // change numWarnings so the change event fires. This is bizarre -- Backbone can't
     // detect if an array changes, so adding an element does nothing
     this.set('numWarnings', this.get('numWarnings') ? this.get('numWarnings') + 1 : 1);
   },
 
-  parseOrCatch: function() {
+  parseOrCatch() {
     this.expandShortcuts(this.get('rawStr'));
     try {
       this.processInstants();
-    } catch (err) {
-      Errors.filterError(err);
+    } catch (error) {
+      Errors.filterError(error);
       // errorChanged() will handle status and all of that
-      this.set('error', err);
+      this.set('error', error);
       return;
     }
 
@@ -228,76 +228,76 @@ var Command = Backbone.Model.extend({
 
     // if we reach here, this command is not supported :-/
     this.set('error', new CommandProcessError({
-        msg: intl.str(
-          'git-error-command-not-supported',
-          {
-            command: this.get('rawStr')
-          })
-      })
-    );
+      msg: intl.str(
+        'git-error-command-not-supported',
+        {
+          command: this.get('rawStr'),
+        },
+      ),
+    }));
   },
 
-  errorChanged: function() {
-    var err = this.get('error');
-    if (!err) { return; }
-    if (err instanceof CommandProcessError ||
-        err instanceof GitError) {
+  errorChanged() {
+    const error = this.get('error');
+    if (!error) { return; }
+    if (error instanceof CommandProcessError
+        || error instanceof GitError) {
       this.set('status', 'error');
-    } else if (err instanceof CommandResult) {
+    } else if (error instanceof CommandResult) {
       this.set('status', 'finished');
-    } else if (err instanceof Warning) {
+    } else if (error instanceof Warning) {
       this.set('status', 'warning');
     }
     this.formatError();
   },
 
-  formatError: function() {
+  formatError() {
     this.set('result', this.get('error').getMsg());
   },
 
-  expandShortcuts: function(str) {
-    str = this.get('parseWaterfall').expandAllShortcuts(str);
-    this.set('rawStr', str);
+  expandShortcuts(string) {
+    string = this.get('parseWaterfall').expandAllShortcuts(string);
+    this.set('rawStr', string);
   },
 
-  processInstants: function() {
-    var str = this.get('rawStr');
+  processInstants() {
+    const string = this.get('rawStr');
     // first if the string is empty, they just want a blank line
-    if (!str.length) {
-      throw new CommandResult({msg: ""});
+    if (string.length === 0) {
+      throw new CommandResult({ msg: '' });
     }
 
     // then instant commands that will throw
-    this.get('parseWaterfall').processAllInstants(str);
+    this.get('parseWaterfall').processAllInstants(string);
   },
 
-  parseAll: function() {
-    var rawInput = this.get('rawStr');
+  parseAll() {
+    let rawInput = this.get('rawStr');
     const aliasMap = LevelStore.getAliasMap();
-    for (var i = 0; i<Object.keys(aliasMap).length; i++) {
-      var alias = Object.keys(aliasMap)[i];
-      var searcher = new RegExp(alias + "(\\s|$)", "g");
+    for (let index = 0; index < Object.keys(aliasMap).length; index++) {
+      const alias = Object.keys(aliasMap)[index];
+      const searcher = new RegExp(`${alias}(\\s|$)`, 'g');
       if (searcher.test(rawInput)) {
-        rawInput = rawInput.replace(searcher, aliasMap[alias] + ' ');
+        rawInput = rawInput.replace(searcher, `${aliasMap[alias]} `);
         break;
       }
     }
 
-    var results = this.get('parseWaterfall').parseAll(rawInput);
+    const results = this.get('parseWaterfall').parseAll(rawInput);
 
     if (!results) {
       // nothing parsed successfully
       return false;
     }
 
-    Object.keys(results.toSet).forEach(function(key) {
-      var obj = results.toSet[key];
+    Object.keys(results.toSet).forEach(function (key) {
+      const object = results.toSet[key];
       // data comes back from the parsing functions like
       // options (etc) that need to be set
-      this.set(key, obj);
+      this.set(key, object);
     }, this);
     return true;
-  }
+  },
 });
 
 exports.Command = Command;

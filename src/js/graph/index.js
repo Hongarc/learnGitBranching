@@ -4,115 +4,113 @@ function invariant(truthy, reason) {
   }
 }
 
-var Graph = {
+const Graph = {
 
-  getOrMakeRecursive: function(
+  getOrMakeRecursive(
     tree,
     createdSoFar,
-    objID,
-    gitVisuals
+    objectID,
+    gitVisuals,
   ) {
     // circular dependency, should move these base models OUT of
     // the git class to resolve this
-    var Git = require('../git');
-    var Commit = Git.Commit;
-    var Ref = Git.Ref;
-    var Branch = Git.Branch;
-    var Tag = Git.Tag;
-    if (createdSoFar[objID]) {
+    const Git = require('../git');
+    const { Commit } = Git;
+    const { Ref } = Git;
+    const { Branch } = Git;
+    const { Tag } = Git;
+    if (createdSoFar[objectID]) {
       // base case
-      return createdSoFar[objID];
+      return createdSoFar[objectID];
     }
 
-    var getType = function(tree, id) {
+    const getType = function (tree, id) {
       if (tree.commits[id]) {
         return 'commit';
-      } else if (tree.branches[id]) {
+      } if (tree.branches[id]) {
         return 'branch';
-      } else if (id == 'HEAD') {
+      } if (id == 'HEAD') {
         return 'HEAD';
-      } else if (tree.tags[id]) {
+      } if (tree.tags[id]) {
         return 'tag';
       }
-      throw new Error("bad type for " + id);
+      throw new Error(`bad type for ${id}`);
     };
 
     // figure out what type
-    var type = getType(tree, objID);
+    const type = getType(tree, objectID);
 
     if (type == 'HEAD') {
-      var headJSON = tree.HEAD;
-      var HEAD = new Ref(Object.assign(
+      const headJSON = tree.HEAD;
+      const HEAD = new Ref(Object.assign(
         tree.HEAD,
         {
-          target: this.getOrMakeRecursive(tree, createdSoFar, headJSON.target)
-        }
+          target: this.getOrMakeRecursive(tree, createdSoFar, headJSON.target),
+        },
       ));
-      createdSoFar[objID] = HEAD;
+      createdSoFar[objectID] = HEAD;
       return HEAD;
     }
 
     if (type == 'branch') {
-      var branchJSON = tree.branches[objID];
+      const branchJSON = tree.branches[objectID];
 
-      var branch = new Branch(Object.assign(
-        tree.branches[objID],
+      const branch = new Branch(Object.assign(
+        tree.branches[objectID],
         {
-          target: this.getOrMakeRecursive(tree, createdSoFar, branchJSON.target)
-        }
+          target: this.getOrMakeRecursive(tree, createdSoFar, branchJSON.target),
+        },
       ));
-      createdSoFar[objID] = branch;
+      createdSoFar[objectID] = branch;
       return branch;
     }
 
     if (type == 'tag') {
-      var tagJSON = tree.tags[objID];
+      const tagJSON = tree.tags[objectID];
 
-      var tag = new Tag(Object.assign(
-        tree.tags[objID],
+      const tag = new Tag(Object.assign(
+        tree.tags[objectID],
         {
-          target: this.getOrMakeRecursive(tree, createdSoFar, tagJSON.target)
-        }
+          target: this.getOrMakeRecursive(tree, createdSoFar, tagJSON.target),
+        },
       ));
-      createdSoFar[objID] = tag;
+      createdSoFar[objectID] = tag;
       return tag;
     }
 
     if (type == 'commit') {
       // for commits, we need to grab all the parents
-      var commitJSON = tree.commits[objID];
+      const commitJSON = tree.commits[objectID];
 
-      var parentObjs = [];
-      commitJSON.parents.forEach(function(parentID) {
+      const parentObjs = [];
+      commitJSON.parents.forEach(function (parentID) {
         parentObjs.push(this.getOrMakeRecursive(tree, createdSoFar, parentID));
       }, this);
 
-      var commit = new Commit(Object.assign(
+      const commit = new Commit(Object.assign(
         commitJSON,
         {
           parents: parentObjs,
-          gitVisuals: this.gitVisuals
-        }
+          gitVisuals: this.gitVisuals,
+        },
       ));
-      createdSoFar[objID] = commit;
+      createdSoFar[objectID] = commit;
       return commit;
     }
 
-    throw new Error('ruh rho!! unsupported type for ' + objID);
+    throw new Error(`ruh rho!! unsupported type for ${objectID}`);
   },
 
-  descendSortDepth: function(objects) {
-    return objects.sort(function(oA, oB) {
-      return oB.depth - oA.depth;
-    });
+  descendSortDepth(objects) {
+    return objects.sort((oA, oB) => oB.depth - oA.depth);
   },
 
-  bfsFromLocationWithSet: function(engine, location, set) {
-    var result = [];
-    var pQueue = [engine.getCommitFromRef(location)];
+  bfsFromLocationWithSet(engine, location, set) {
+    const result = [];
+    let pQueue = [engine.getCommitFromRef(location)];
 
-    while (pQueue.length) {
-      var popped = pQueue.pop();
+    while (pQueue.length > 0) {
+      const popped = pQueue.pop();
       if (set[popped.get('id')]) {
         continue;
       }
@@ -124,44 +122,44 @@ var Graph = {
     return result;
   },
 
-  getUpstreamSet: function(engine, ancestor) {
-    var commit = engine.getCommitFromRef(ancestor);
-    var ancestorID = commit.get('id');
-    var queue = [commit];
+  getUpstreamSet(engine, ancestor) {
+    const commit = engine.getCommitFromRef(ancestor);
+    const ancestorID = commit.get('id');
+    const queue = [commit];
 
-    var exploredSet = {};
+    const exploredSet = {};
     exploredSet[ancestorID] = true;
 
-    var addToExplored = function(rent) {
+    const addToExplored = function (rent) {
       exploredSet[rent.get('id')] = true;
       queue.push(rent);
     };
 
-    while (queue.length) {
-      var here = queue.pop();
-      var rents = here.get('parents');
+    while (queue.length > 0) {
+      const here = queue.pop();
+      const rents = here.get('parents');
 
       (rents || []).forEach(addToExplored);
     }
     return exploredSet;
   },
 
-  getUniqueObjects: function(objects) {
-    var unique = {};
-    var result = [];
-    objects.forEach(function(object) {
+  getUniqueObjects(objects) {
+    const unique = {};
+    const result = [];
+    for (const object of objects) {
       if (unique[object.id]) {
-        return;
+        continue;
       }
       unique[object.id] = true;
       result.push(object);
-    });
+    }
     return result;
   },
 
-  getDefaultTree: function() {
-    return JSON.parse(unescape("%7B%22branches%22%3A%7B%22master%22%3A%7B%22target%22%3A%22C1%22%2C%22id%22%3A%22master%22%2C%22type%22%3A%22branch%22%7D%7D%2C%22commits%22%3A%7B%22C0%22%3A%7B%22type%22%3A%22commit%22%2C%22parents%22%3A%5B%5D%2C%22author%22%3A%22Peter%20Cottle%22%2C%22createTime%22%3A%22Mon%20Nov%2005%202012%2000%3A56%3A47%20GMT-0800%20%28PST%29%22%2C%22commitMessage%22%3A%22Quick%20Commit.%20Go%20Bears%21%22%2C%22id%22%3A%22C0%22%2C%22rootCommit%22%3Atrue%7D%2C%22C1%22%3A%7B%22type%22%3A%22commit%22%2C%22parents%22%3A%5B%22C0%22%5D%2C%22author%22%3A%22Peter%20Cottle%22%2C%22createTime%22%3A%22Mon%20Nov%2005%202012%2000%3A56%3A47%20GMT-0800%20%28PST%29%22%2C%22commitMessage%22%3A%22Quick%20Commit.%20Go%20Bears%21%22%2C%22id%22%3A%22C1%22%7D%7D%2C%22HEAD%22%3A%7B%22id%22%3A%22HEAD%22%2C%22target%22%3A%22master%22%2C%22type%22%3A%22general%20ref%22%7D%7D"));
-  }
+  getDefaultTree() {
+    return JSON.parse(unescape('%7B%22branches%22%3A%7B%22master%22%3A%7B%22target%22%3A%22C1%22%2C%22id%22%3A%22master%22%2C%22type%22%3A%22branch%22%7D%7D%2C%22commits%22%3A%7B%22C0%22%3A%7B%22type%22%3A%22commit%22%2C%22parents%22%3A%5B%5D%2C%22author%22%3A%22Peter%20Cottle%22%2C%22createTime%22%3A%22Mon%20Nov%2005%202012%2000%3A56%3A47%20GMT-0800%20%28PST%29%22%2C%22commitMessage%22%3A%22Quick%20Commit.%20Go%20Bears%21%22%2C%22id%22%3A%22C0%22%2C%22rootCommit%22%3Atrue%7D%2C%22C1%22%3A%7B%22type%22%3A%22commit%22%2C%22parents%22%3A%5B%22C0%22%5D%2C%22author%22%3A%22Peter%20Cottle%22%2C%22createTime%22%3A%22Mon%20Nov%2005%202012%2000%3A56%3A47%20GMT-0800%20%28PST%29%22%2C%22commitMessage%22%3A%22Quick%20Commit.%20Go%20Bears%21%22%2C%22id%22%3A%22C1%22%7D%7D%2C%22HEAD%22%3A%7B%22id%22%3A%22HEAD%22%2C%22target%22%3A%22master%22%2C%22type%22%3A%22general%20ref%22%7D%7D'));
+  },
 };
 
 module.exports = Graph;

@@ -1,11 +1,11 @@
-var Backbone = require('backbone');
-var Q = require('q');
+const Backbone = require('backbone');
+const Q = require('q');
 
-var Animation = require('./index').Animation;
-var PromiseAnimation = require('./index').PromiseAnimation;
-var GRAPHICS = require('../../util/constants').GRAPHICS;
+const { Animation } = require('./index');
+const { PromiseAnimation } = require('./index');
+const { GRAPHICS } = require('../../util/constants');
 
-/******************
+/** ****************
  * This class is responsible for a lot of the heavy lifting around creating an animation at a certain state in time.
  * The tricky thing is that when a new commit has to be "born," say in the middle of a rebase
  * or something, it must animate out from the parent position to it's birth position.
@@ -16,13 +16,13 @@ var GRAPHICS = require('../../util/constants').GRAPHICS;
  */
 
 // static class
-var AnimationFactory = {};
+const AnimationFactory = {};
 
-var makeCommitBirthAnimation = function(gitVisuals, visNode) {
-  var time = GRAPHICS.defaultAnimationTime * 1.0;
-  var bounceTime = time * 2;
+const makeCommitBirthAnimation = function (gitVisuals, visNode) {
+  const time = GRAPHICS.defaultAnimationTime * 1;
+  const bounceTime = time * 2;
 
-  var animation = function() {
+  const animation = function () {
     // essentially refresh the entire tree, but do a special thing for the commit
     gitVisuals.refreshTree(time);
 
@@ -34,137 +34,134 @@ var makeCommitBirthAnimation = function(gitVisuals, visNode) {
     visNode.animateOutgoingEdges(time);
   };
   return {
-    animation: animation,
-    duration: Math.max(time, bounceTime)
+    animation,
+    duration: Math.max(time, bounceTime),
   };
 };
 
-var makeHighlightAnimation = function(visNode, visBranch) {
-  var fullTime = GRAPHICS.defaultAnimationTime * 0.66;
-  var slowTime = fullTime * 2.0;
+const makeHighlightAnimation = function (visNode, visBranch) {
+  const fullTime = GRAPHICS.defaultAnimationTime * 0.66;
+  const slowTime = fullTime * 2;
 
   return {
-    animation: function() {
+    animation() {
       visNode.highlightTo(visBranch, slowTime, 'easeInOut');
     },
-    duration: slowTime * 1.5
+    duration: slowTime * 1.5,
   };
 };
 
-AnimationFactory.genCommitBirthAnimation = function(animationQueue, commit, gitVisuals) {
+AnimationFactory.genCommitBirthAnimation = function (animationQueue, commit, gitVisuals) {
   if (!animationQueue) {
-    throw new Error("Need animation queue to add closure to!");
+    throw new Error('Need animation queue to add closure to!');
   }
 
-  var visNode = commit.get('visNode');
-  var anPack = makeCommitBirthAnimation(gitVisuals, visNode);
+  const visNode = commit.get('visNode');
+  const anPack = makeCommitBirthAnimation(gitVisuals, visNode);
 
   animationQueue.add(new Animation({
     closure: anPack.animation,
-    duration: anPack.duration
+    duration: anPack.duration,
   }));
 };
 
-AnimationFactory.genCommitBirthPromiseAnimation = function(commit, gitVisuals) {
-  var visNode = commit.get('visNode');
+AnimationFactory.genCommitBirthPromiseAnimation = function (commit, gitVisuals) {
+  const visNode = commit.get('visNode');
   return new PromiseAnimation(makeCommitBirthAnimation(gitVisuals, visNode));
 };
 
-AnimationFactory.highlightEachWithPromise = function(
+AnimationFactory.highlightEachWithPromise = function (
   chain,
   toHighlight,
-  destObj
+  destinationObject,
 ) {
-  toHighlight.forEach(function(commit) {
-    chain = chain.then(function() {
-      return this.playHighlightPromiseAnimation(
-        commit,
-        destObj
-      );
-    }.bind(this));
-  }.bind(this));
+  for (const commit of toHighlight) {
+    chain = chain.then(() => this.playHighlightPromiseAnimation(
+      commit,
+      destinationObject,
+    ));
+  }
   return chain;
 };
 
-AnimationFactory.playCommitBirthPromiseAnimation = function(commit, gitVisuals) {
-  var animation = this.genCommitBirthPromiseAnimation(commit, gitVisuals);
+AnimationFactory.playCommitBirthPromiseAnimation = function (commit, gitVisuals) {
+  const animation = this.genCommitBirthPromiseAnimation(commit, gitVisuals);
   animation.play();
   return animation.getPromise();
 };
 
-AnimationFactory.playRefreshAnimationAndFinish = function(gitVisuals, animationQueue) {
-  var animation = new PromiseAnimation({
-    closure: function() {
+AnimationFactory.playRefreshAnimationAndFinish = function (gitVisuals, animationQueue) {
+  const animation = new PromiseAnimation({
+    closure() {
       gitVisuals.refreshTree();
-    }
+    },
   });
   animation.play();
   animationQueue.thenFinish(animation.getPromise());
 };
 
-AnimationFactory.genRefreshPromiseAnimation = function(gitVisuals) {
+AnimationFactory.genRefreshPromiseAnimation = function (gitVisuals) {
   return new PromiseAnimation({
-    closure: function() {
+    closure() {
       gitVisuals.refreshTree();
-    }
+    },
   });
 };
 
-AnimationFactory.playRefreshAnimationSlow = function(gitVisuals) {
-  var time = GRAPHICS.defaultAnimationTime;
+AnimationFactory.playRefreshAnimationSlow = function (gitVisuals) {
+  const time = GRAPHICS.defaultAnimationTime;
   return this.playRefreshAnimation(gitVisuals, time * 2);
 };
 
-AnimationFactory.playRefreshAnimation = function(gitVisuals, speed) {
-  var animation = new PromiseAnimation({
+AnimationFactory.playRefreshAnimation = function (gitVisuals, speed) {
+  const animation = new PromiseAnimation({
     duration: speed,
-    closure: function() {
+    closure() {
       gitVisuals.refreshTree(speed);
-    }
+    },
   });
   animation.play();
   return animation.getPromise();
 };
 
-AnimationFactory.refreshTree = function(animationQueue, gitVisuals) {
+AnimationFactory.refreshTree = function (animationQueue, gitVisuals) {
   animationQueue.add(new Animation({
-    closure: function() {
+    closure() {
       gitVisuals.refreshTree();
-    }
+    },
   }));
 };
 
-AnimationFactory.genHighlightPromiseAnimation = function(commit, destObj) {
+AnimationFactory.genHighlightPromiseAnimation = function (commit, destinationObject) {
   // could be branch or node
-  var visObj = destObj.get('visBranch') || destObj.get('visNode') ||
-    destObj.get('visTag');
-  if (!visObj) {
-    console.log(destObj);
+  const visObject = destinationObject.get('visBranch') || destinationObject.get('visNode')
+    || destinationObject.get('visTag');
+  if (!visObject) {
+    console.log(destinationObject);
     throw new Error('could not find vis object for dest obj');
   }
-  var visNode = commit.get('visNode');
-  return new PromiseAnimation(makeHighlightAnimation(visNode, visObj));
+  const visNode = commit.get('visNode');
+  return new PromiseAnimation(makeHighlightAnimation(visNode, visObject));
 };
 
-AnimationFactory.playHighlightPromiseAnimation = function(commit, destObj) {
-  var animation = this.genHighlightPromiseAnimation(commit, destObj);
+AnimationFactory.playHighlightPromiseAnimation = function (commit, destinationObject) {
+  const animation = this.genHighlightPromiseAnimation(commit, destinationObject);
   animation.play();
   return animation.getPromise();
 };
 
-AnimationFactory.getDelayedPromise = function(amount) {
-  var deferred = Q.defer();
+AnimationFactory.getDelayedPromise = function (amount) {
+  const deferred = Q.defer();
   setTimeout(deferred.resolve, amount || 1000);
   return deferred.promise;
 };
 
-AnimationFactory.delay = function(animationQueue, time) {
+AnimationFactory.delay = function (animationQueue, time) {
   time = time || GRAPHICS.defaultAnimationTime;
   animationQueue.add(new Animation({
-    closure: function() { },
-    duration: time
+    closure() {},
+    duration: time,
   }));
 };
 
 exports.AnimationFactory = AnimationFactory;
-

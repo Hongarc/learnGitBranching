@@ -1,25 +1,26 @@
-var _ = require('underscore');
-var Q = require('q');
-var marked = require('marked');
+const _ = require('underscore');
+const Q = require('q');
+const marked = require('marked');
 
-var Views = require('../views');
-var throttle = require('../util/throttle');
-var ModalTerminal = Views.ModalTerminal;
-var ContainedBase = Views.ContainedBase;
+const Views = require('.');
+const throttle = require('../util/throttle');
 
-var TextGrabber = ContainedBase.extend({
+const { ModalTerminal } = Views;
+const { ContainedBase } = Views;
+
+const TextGrabber = ContainedBase.extend({
   tagName: 'div',
   className: 'textGrabber box vertical',
   template: _.template($('#text-grabber').html()),
 
-  initialize: function(options) {
+  initialize(options) {
     options = options || {};
     this.JSON = {
-      helperText: options.helperText || 'Enter some text'
+      helperText: options.helperText || 'Enter some text',
     };
 
     this.container = options.container || new ModalTerminal({
-      title: 'Enter some text'
+      title: 'Enter some text',
     });
     this.render();
     if (options.initialText) {
@@ -31,24 +32,24 @@ var TextGrabber = ContainedBase.extend({
     }
   },
 
-  getText: function() {
+  getText() {
     return this.$('textarea').val();
   },
 
-  setText: function(str) {
-    this.$('textarea').val(str);
-  }
+  setText(string) {
+    this.$('textarea').val(string);
+  },
 });
 
-var MarkdownGrabber = ContainedBase.extend({
+const MarkdownGrabber = ContainedBase.extend({
   tagName: 'div',
   className: 'markdownGrabber box horizontal',
   template: _.template($('#markdown-grabber-view').html()),
   events: {
-    'keyup textarea': 'keyup'
+    'keyup textarea': 'keyup',
   },
 
-  initialize: function(options) {
+  initialize(options) {
     options = options || {};
     this.deferred = options.deferred || Q.defer();
 
@@ -58,25 +59,25 @@ var MarkdownGrabber = ContainedBase.extend({
 
     this.JSON = {
       previewText: options.previewText || 'Preview',
-      fillerText: options.fillerText || '## Enter some markdown!\n\n\n'
+      fillerText: options.fillerText || '## Enter some markdown!\n\n\n',
     };
 
     this.container = options.container || new ModalTerminal({
-      title: options.title || 'Enter some markdown'
+      title: options.title || 'Enter some markdown',
     });
     this.render();
 
     if (!options.withoutButton) {
       // do button stuff
-      var buttonDefer = Q.defer();
+      const buttonDefer = Q.defer();
       buttonDefer.promise
-      .then(this.confirmed.bind(this))
-      .fail(this.cancelled.bind(this))
-      .done();
+        .then(this.confirmed.bind(this))
+        .fail(this.cancelled.bind(this))
+        .done();
 
-      var confirmCancel = new Views.ConfirmCancelView({
+      const confirmCancel = new Views.ConfirmCancelView({
         deferred: buttonDefer,
-        destination: this.getDestination()
+        destination: this.getDestination(),
       });
     }
 
@@ -87,114 +88,112 @@ var MarkdownGrabber = ContainedBase.extend({
     }
   },
 
-  confirmed: function() {
+  confirmed() {
     this.die();
     this.deferred.resolve(this.getRawText());
   },
 
-  cancelled: function() {
+  cancelled() {
     this.die();
     this.deferred.resolve();
   },
 
-  keyup: function() {
+  keyup() {
     if (!this.throttledPreview) {
       this.throttledPreview = throttle(
         this.updatePreview.bind(this),
-        500
+        500,
       );
     }
     this.throttledPreview();
   },
 
-  getRawText: function() {
+  getRawText() {
     return this.$('textarea').val();
   },
 
-  exportToArray: function() {
+  exportToArray() {
     return this.getRawText().split('\n');
   },
 
-  getExportObj: function() {
+  getExportObj() {
     return {
-      markdowns: this.exportToArray()
+      markdowns: this.exportToArray(),
     };
   },
 
-  updatePreview: function() {
-    var raw = this.getRawText();
-    var HTML = marked(raw);
+  updatePreview() {
+    const raw = this.getRawText();
+    const HTML = marked(raw);
     this.$('div.insidePreview').html(HTML);
-  }
+  },
 });
 
-var MarkdownPresenter = ContainedBase.extend({
+const MarkdownPresenter = ContainedBase.extend({
   tagName: 'div',
   className: 'markdownPresenter box vertical',
   template: _.template($('#markdown-presenter').html()),
 
-  initialize: function(options) {
+  initialize(options) {
     options = options || {};
     this.deferred = options.deferred || Q.defer();
     this.JSON = {
       previewText: options.previewText || 'Here is something for you',
-      fillerText: options.fillerText || '# Yay'
+      fillerText: options.fillerText || '# Yay',
     };
 
     this.container = new ModalTerminal({
-      title: 'Check this out...'
+      title: 'Check this out...',
     });
     this.render();
 
     if (!options.noConfirmCancel) {
-      var confirmCancel = new Views.ConfirmCancelView({
-        destination: this.getDestination()
+      const confirmCancel = new Views.ConfirmCancelView({
+        destination: this.getDestination(),
       });
       confirmCancel.deferred.promise
-      .then(function() {
-        this.deferred.resolve(this.grabText());
-      }.bind(this))
-      .fail(function() {
-        this.deferred.reject();
-      }.bind(this))
-      .done(this.die.bind(this));
+        .then(() => {
+          this.deferred.resolve(this.grabText());
+        })
+        .fail(() => {
+          this.deferred.reject();
+        })
+        .done(this.die.bind(this));
     }
 
     this.show();
   },
 
-  grabText: function() {
+  grabText() {
     return this.$('textarea').val();
-  }
+  },
 });
 
-var DemonstrationBuilder = ContainedBase.extend({
+const DemonstrationBuilder = ContainedBase.extend({
   tagName: 'div',
   className: 'demonstrationBuilder box vertical',
   template: _.template($('#demonstration-builder').html()),
   events: {
-    'click div.testButton': 'testView'
+    'click div.testButton': 'testView',
   },
 
-  initialize: function(options) {
+  initialize(options) {
     options = options || {};
     this.deferred = options.deferred || Q.defer();
     if (options.fromObj) {
-      var toEdit = options.fromObj.options;
-      options = Object.assign(
-        {},
-        options,
-        toEdit,
-        {
-          beforeMarkdown: toEdit.beforeMarkdowns.join('\n'),
-          afterMarkdown: toEdit.afterMarkdowns.join('\n')
-        }
-      );
+      const toEdit = options.fromObj.options;
+      options = {
+
+        ...options,
+        ...toEdit,
+        beforeMarkdown: toEdit.beforeMarkdowns.join('\n'),
+        afterMarkdown: toEdit.afterMarkdowns.join('\n'),
+      };
     }
 
     this.JSON = {};
     this.container = new ModalTerminal({
-      title: 'Demonstration Builder'
+      title: 'Demonstration Builder',
     });
     this.render();
 
@@ -203,81 +202,81 @@ var DemonstrationBuilder = ContainedBase.extend({
       container: this,
       withoutButton: true,
       fillerText: options.beforeMarkdown,
-      previewText: 'Before demonstration Markdown'
+      previewText: 'Before demonstration Markdown',
     });
     this.beforeCommandView = new TextGrabber({
       container: this,
       helperText: 'The git command(s) to set up the demonstration view (before it is displayed)',
-      initialText: options.beforeCommand || 'git checkout -b bugFix'
+      initialText: options.beforeCommand || 'git checkout -b bugFix',
     });
 
     this.commandView = new TextGrabber({
       container: this,
       helperText: 'The git command(s) to demonstrate to the reader',
-      initialText: options.command || 'git commit'
+      initialText: options.command || 'git commit',
     });
 
     this.afterMarkdownView = new MarkdownGrabber({
       container: this,
       withoutButton: true,
       fillerText: options.afterMarkdown,
-      previewText: 'After demonstration Markdown'
+      previewText: 'After demonstration Markdown',
     });
 
     // build confirm button
-    var buttonDeferred = Q.defer();
-    var confirmCancel = new Views.ConfirmCancelView({
+    const buttonDeferred = Q.defer();
+    const confirmCancel = new Views.ConfirmCancelView({
       deferred: buttonDeferred,
-      destination: this.getDestination()
+      destination: this.getDestination(),
     });
 
     buttonDeferred.promise
-    .then(this.confirmed.bind(this))
-    .fail(this.cancelled.bind(this))
-    .done();
+      .then(this.confirmed.bind(this))
+      .fail(this.cancelled.bind(this))
+      .done();
   },
 
-  testView: function() {
-    var MultiView = require('../views/multiView').MultiView;
+  testView() {
+    const { MultiView } = require('./multiView');
     new MultiView({
       childViews: [{
         type: 'GitDemonstrationView',
-        options: this.getExportObj()
-      }]
+        options: this.getExportObj(),
+      }],
     });
   },
 
-  getExportObj: function() {
+  getExportObj() {
     return {
       beforeMarkdowns: this.beforeMarkdownView.exportToArray(),
       afterMarkdowns: this.afterMarkdownView.exportToArray(),
       command: this.commandView.getText(),
-      beforeCommand: this.beforeCommandView.getText()
+      beforeCommand: this.beforeCommandView.getText(),
     };
   },
 
-  confirmed: function() {
+  confirmed() {
     this.die();
     this.deferred.resolve(this.getExportObj());
   },
 
-  cancelled: function() {
+  cancelled() {
     this.die();
     this.deferred.resolve();
   },
 
-  getInsideElement: function() {
+  getInsideElement() {
     return this.$('.insideBuilder')[0];
-  }
+  },
 });
 
-var MultiViewBuilder = ContainedBase.extend({
+const MultiViewBuilder = ContainedBase.extend({
   tagName: 'div',
   className: 'multiViewBuilder box vertical',
   template: _.template($('#multi-view-builder').html()),
   typeToConstructor: {
     ModalAlert: MarkdownGrabber,
-    GitDemonstrationView: DemonstrationBuilder
+    GitDemonstrationView: DemonstrationBuilder,
   },
 
   events: {
@@ -287,130 +286,130 @@ var MultiViewBuilder = ContainedBase.extend({
     'click div.testEntireView': 'testEntireView',
     'click div.addView': 'addView',
     'click div.saveView': 'saveView',
-    'click div.cancelView': 'cancel'
+    'click div.cancelView': 'cancel',
   },
 
-  initialize: function(options) {
+  initialize(options) {
     options = options || {};
     this.deferred = options.deferred || Q.defer();
     this.multiViewJSON = options.multiViewJSON || {};
 
     this.JSON = {
       views: this.getChildViews(),
-      supportedViews: Object.keys(this.typeToConstructor)
+      supportedViews: Object.keys(this.typeToConstructor),
     };
 
     this.container = new ModalTerminal({
-      title: 'Build a MultiView!'
+      title: 'Build a MultiView!',
     });
     this.render();
 
     this.show();
   },
 
-  saveView: function() {
+  saveView() {
     this.hide();
     this.deferred.resolve(this.multiViewJSON);
   },
 
-  cancel: function() {
+  cancel() {
     this.hide();
     this.deferred.resolve();
   },
 
-  addView: function(ev) {
-    var el = ev.target;
-    var type = $(el).attr('data-type');
+  addView(event) {
+    const element = event.target;
+    const type = $(element).attr('data-type');
 
-    var whenDone = Q.defer();
-    var Constructor = this.typeToConstructor[type];
-    var builder = new Constructor({
-      deferred: whenDone
-    });
-    whenDone.promise
-    .then(function() {
-      var newView = {
-        type: type,
-        options: builder.getExportObj()
-      };
-      this.addChildViewObj(newView);
-    }.bind(this))
-    .fail(function() {
-      // they don't want to add the view apparently, so just return
-    })
-    .done();
-  },
-
-  testOneView: function(ev) {
-    var el = ev.target;
-    var index = $(el).attr('data-index');
-    var toTest = this.getChildViews()[index];
-    var MultiView = require('../views/multiView').MultiView;
-    new MultiView({
-      childViews: [toTest]
-    });
-  },
-
-  testEntireView: function() {
-    var MultiView = require('../views/multiView').MultiView;
-    new MultiView({
-      childViews: this.getChildViews()
-    });
-  },
-
-  editOneView: function(ev) {
-    var el = ev.target;
-    var index = $(el).attr('data-index');
-    var type = $(el).attr('data-type');
-
-    var whenDone = Q.defer();
-    var builder = new this.typeToConstructor[type]({
+    const whenDone = Q.defer();
+    const Constructor = this.typeToConstructor[type];
+    const builder = new Constructor({
       deferred: whenDone,
-      fromObj: this.getChildViews()[index]
     });
     whenDone.promise
-    .then(function() {
-      var newView = {
-        type: type,
-        options: builder.getExportObj()
-      };
-      var views = this.getChildViews();
-      views[index] = newView;
-      this.setChildViews(views);
-    }.bind(this))
-    .fail(function() { })
-    .done();
+      .then(() => {
+        const newView = {
+          type,
+          options: builder.getExportObj(),
+        };
+        this.addChildViewObj(newView);
+      })
+      .fail(() => {
+      // they don't want to add the view apparently, so just return
+      })
+      .done();
   },
 
-  deleteOneView: function(ev) {
-    var el = ev.target;
-    var index = $(el).attr('data-index');
-    var toSlice = this.getChildViews();
+  testOneView(event) {
+    const element = event.target;
+    const index = $(element).attr('data-index');
+    const toTest = this.getChildViews()[index];
+    const { MultiView } = require('./multiView');
+    new MultiView({
+      childViews: [toTest],
+    });
+  },
 
-    var updated = toSlice.slice(0,index).concat(toSlice.slice(index + 1));
+  testEntireView() {
+    const { MultiView } = require('./multiView');
+    new MultiView({
+      childViews: this.getChildViews(),
+    });
+  },
+
+  editOneView(event) {
+    const element = event.target;
+    const index = $(element).attr('data-index');
+    const type = $(element).attr('data-type');
+
+    const whenDone = Q.defer();
+    const builder = new this.typeToConstructor[type]({
+      deferred: whenDone,
+      fromObj: this.getChildViews()[index],
+    });
+    whenDone.promise
+      .then(() => {
+        const newView = {
+          type,
+          options: builder.getExportObj(),
+        };
+        const views = this.getChildViews();
+        views[index] = newView;
+        this.setChildViews(views);
+      })
+      .fail(() => {})
+      .done();
+  },
+
+  deleteOneView(event) {
+    const element = event.target;
+    const index = $(element).attr('data-index');
+    const toSlice = this.getChildViews();
+
+    const updated = toSlice.slice(0, index).concat(toSlice.slice(index + 1));
     this.setChildViews(updated);
     this.update();
   },
 
-  addChildViewObj: function(newObj, index) {
-    var childViews = this.getChildViews();
-    childViews.push(newObj);
+  addChildViewObj(newObject, index) {
+    const childViews = this.getChildViews();
+    childViews.push(newObject);
     this.setChildViews(childViews);
     this.update();
   },
 
-  setChildViews: function(newArray) {
+  setChildViews(newArray) {
     this.multiViewJSON.childViews = newArray;
   },
 
-  getChildViews: function() {
+  getChildViews() {
     return this.multiViewJSON.childViews || [];
   },
 
-  update: function() {
+  update() {
     this.JSON.views = this.getChildViews();
     this.renderAgain();
-  }
+  },
 });
 
 exports.MarkdownGrabber = MarkdownGrabber;

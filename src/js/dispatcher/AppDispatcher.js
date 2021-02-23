@@ -1,23 +1,21 @@
-'use strict';
+const { Dispatcher } = require('flux');
+const AppConstants = require('../constants/AppConstants');
 
-var AppConstants = require('../constants/AppConstants');
-var Dispatcher = require('flux').Dispatcher;
+const { PayloadSources } = AppConstants;
 
-var PayloadSources = AppConstants.PayloadSources;
+const AppDispatcher = new Dispatcher();
 
-var AppDispatcher = new Dispatcher();
-
-AppDispatcher.handleViewAction = function(action) {
+AppDispatcher.handleViewAction = function (action) {
   this.dispatch({
     source: PayloadSources.VIEW_ACTION,
-    action: action
+    action,
   });
 };
 
-AppDispatcher.handleURIAction = function(action) {
+AppDispatcher.handleURIAction = function (action) {
   this.dispatch({
     source: PayloadSources.URI_ACTION,
-    action: action
+    action,
   });
 };
 

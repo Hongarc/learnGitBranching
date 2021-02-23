@@ -1,32 +1,30 @@
-"use strict";
+const AppConstants = require('../constants/AppConstants');
+const AppDispatcher = require('../dispatcher/AppDispatcher');
 
-var AppConstants = require('../constants/AppConstants');
-var AppDispatcher = require('../dispatcher/AppDispatcher');
+const { ActionTypes } = AppConstants;
 
-var ActionTypes = AppConstants.ActionTypes;
+const LocaleActions = {
 
-var LocaleActions = {
-
-  changeLocale: function(newLocale) {
+  changeLocale(newLocale) {
     AppDispatcher.handleViewAction({
       type: ActionTypes.CHANGE_LOCALE,
-      locale: newLocale
+      locale: newLocale,
     });
   },
 
-  changeLocaleFromURI: function(newLocale) {
+  changeLocaleFromURI(newLocale) {
     AppDispatcher.handleURIAction({
       type: ActionTypes.CHANGE_LOCALE,
-      locale: newLocale
+      locale: newLocale,
     });
   },
 
-  changeLocaleFromHeader: function(header) {
+  changeLocaleFromHeader(header) {
     AppDispatcher.handleViewAction({
       type: ActionTypes.CHANGE_LOCALE_FROM_HEADER,
-      header: header
+      header,
     });
-  }
+  },
 };
 
 module.exports = LocaleActions;
