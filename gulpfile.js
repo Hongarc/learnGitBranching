@@ -157,8 +157,8 @@ var gitAdd = function(done) {
   done();
 };
 
-var gitDeployMergeMaster = function(done) {
-  execSync('git checkout gh-pages && git merge master -m "merge master"');
+var gitDeployMergeMain = function(done) {
+  execSync('git checkout gh-pages && git merge main -m "merge main"');
   done();
 };
 
@@ -166,7 +166,7 @@ var gitDeployPushOrigin = function(done) {
   execSync('git commit -am "rebuild for prod"; ' +
     'git push origin gh-pages --force && ' +
     'git branch -f trunk gh-pages && ' +
-    'git checkout master'
+    'git checkout main'
   );
   done();
 };
@@ -184,7 +184,7 @@ var deploy = series(
   clean,
   jasmine,
   jshint,
-  gitDeployMergeMaster,
+  gitDeployMergeMain,
   build,
   gitDeployPushOrigin,
   compliment

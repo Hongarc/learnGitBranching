@@ -11,12 +11,12 @@ TreeCompare.dispatchFromLevel = function(levelBlob, treeToCompare) {
   return TreeCompare.dispatch(levelBlob, goalTreeString, treeToCompare);
 };
 
-TreeCompare.onlyMasterCompared = function(levelBlob) {
+TreeCompare.onlyMainCompared = function(levelBlob) {
   var getAroundLintTrue = true;
   switch (getAroundLintTrue) {
-    case !!levelBlob.compareOnlyMaster:
-    case !!levelBlob.compareOnlyMasterHashAgnostic:
-    case !!levelBlob.compareOnlyMasterHashAgnosticWithAsserts:
+    case !!levelBlob.compareOnlyMain:
+    case !!levelBlob.compareOnlyMainHashAgnostic:
+    case !!levelBlob.compareOnlyMainHashAgnosticWithAsserts:
       return true;
     default:
       return false;
@@ -50,9 +50,9 @@ TreeCompare.dispatchShallow = function(levelBlob, goalTreeString, treeToCompare)
   var getAroundLintTrue = true;
   // i actually prefer this to else if
   switch (getAroundLintTrue) {
-    case !!levelBlob.compareOnlyMaster:
+    case !!levelBlob.compareOnlyMain:
       return TreeCompare.compareBranchWithinTrees(
-        treeToCompare, goalTreeString, 'master'
+        treeToCompare, goalTreeString, 'main'
       );
     case !!levelBlob.compareAllBranchesAndEnforceBranchCleanup:
       return TreeCompare.compareAllBranchesAndEnforceBranchCleanup(
@@ -66,13 +66,13 @@ TreeCompare.dispatchShallow = function(levelBlob, goalTreeString, treeToCompare)
       return TreeCompare.compareAllBranchesWithinTreesHashAgnostic(
         treeToCompare, goalTreeString
       );
-    case !!levelBlob.compareOnlyMasterHashAgnostic:
+    case !!levelBlob.compareOnlyMainHashAgnostic:
       return TreeCompare.compareBranchesWithinTreesHashAgnostic(
-        treeToCompare, goalTreeString, ['master']
+        treeToCompare, goalTreeString, ['main']
       );
-    case !!levelBlob.compareOnlyMasterHashAgnosticWithAsserts:
+    case !!levelBlob.compareOnlyMainHashAgnosticWithAsserts:
       return TreeCompare.compareBranchesWithinTreesHashAgnostic(
-        treeToCompare, goalTreeString, ['master']
+        treeToCompare, goalTreeString, ['main']
       ) && TreeCompare.evalAsserts(treeToCompare, levelBlob.goalAsserts);
     default:
       return TreeCompare.compareAllBranchesWithinTreesAndHEAD(

@@ -1,6 +1,6 @@
 # LearnGitBranching
 
-[![Build Status](https://travis-ci.org/pcottle/learnGitBranching.svg?branch=master)](https://travis-ci.org/pcottle/learnGitBranching)
+[![Build Status](https://travis-ci.org/pcottle/learnGitBranching.svg?branch=main)](https://travis-ci.org/pcottle/learnGitBranching)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?)](https://github.com/pcottle/learnGitBranching/pulls)
 
 LearnGitBranching is a git repository visualizer, sandbox, and a series of educational tutorials and challenges. Its primary purpose is to help developers understand git through the power of visualization (something that's absent when working on the command line). This is achieved through a game with different levels to get acquainted with the different git commands.
@@ -100,7 +100,7 @@ git push
 
 Alternatively, you can also build and run the app in a pre-configured online workspace:
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/pcottle/learnGitBranching/blob/master/src/js/git/index.js)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/pcottle/learnGitBranching/blob/main/src/js/git/index.js)
 
 [//]: contributor-faces
 <a href="https://github.com/pcottle"><img src="https://avatars0.githubusercontent.com/u/1135007?v=4" title="pcottle" width="80" height="80"></a>
@@ -169,4 +169,3 @@ And the following heroes for assisting in translating:
 Also huge shoutout for everyone who has put up a pull request that was pulled! Check out the 30+ contributors we have in the [Contributors View](https://github.com/pcottle/learnGitBranching/graphs/contributors)
 
 And everyone who has reported an issue that was successfully closed!
-
